@@ -1,0 +1,64 @@
+prisma:engines binaries to download query-engine, schema-engine +520ms
+prisma:loadEnv project root found at D:\FullStackDevlop Project\Url Memory\package.json +1126ms
+prisma:getSchema prismaConfig {
+  "packagePath": "D:\\FullStackDevlop Project\\Url Memory\\package.json"
+} +3ms
+prisma:tryLoadEnv Environment variables loaded from D:\FullStackDevlop Project\Url Memory\.env +1ms
+Environment variables loaded from .env
+prisma:getSchema prismaConfig {
+  "packagePath": "D:\\FullStackDevlop Project\\Url Memory\\package.json"
+} +5ms
+prisma:getSchema Checking existence of D:\FullStackDevlop Project\Url Memory\schema.prisma +1ms
+prisma:getSchema Reading schema from single file D:\FullStackDevlop Project\Url Memory\schema.prisma +0ms
+prisma:getSchema Checking existence of D:\FullStackDevlop Project\Url Memory\prisma\schema.prisma +2ms
+prisma:getSchema Reading schema from single file D:\FullStackDevlop Project\Url Memory\prisma\schema.prisma +1ms
+prisma:getSchema Reading schema from multiple files D:\FullStackDevlop Project\Url Memory\prisma\schema +2ms
+Prisma schema loaded from prisma\schema.prisma
+prisma:getConfig Using getConfig Wasm +3ms
+prisma:getConfig config data retrieved without errors in getConfig Wasm +149ms
+prisma:getSchema Reading schema from single file D:\FullStackDevlop Project\Url Memory\prisma\schema.prisma +4ms
+prisma:getConfig Using getConfig Wasm +368ms
+prisma:getConfig config data retrieved without errors in getConfig Wasm +4ms
+prisma:getDMMF Using getDmmf Wasm +0ms
+prisma:getDMMF Using given datamodel +1ms
+prisma:getDMMF dmmf data retrieved without errors in getDmmf Wasm +110ms
+prisma:generator prismaCLIDir D:\FullStackDevlop Project\Url Memory\node_modules\prisma +8ms
+prisma:generator prismaClientDir D:\FullStackDevlop Project\Url Memory\node_modules\@prisma\client +1ms
+prisma:generator baseDir D:\FullStackDevlop Project\Url Memory\prisma +0ms
+prisma:generator typescriptPath D:\FullStackDevlop Project\Url Memory\node_modules\typescript +5ms
+prisma:GeneratorProcess prisma:client:generator requiredEngine: libqueryEngine +47ms +181ms
+prisma:mergeSchemas Using mergeSchemas Wasm +2ms
+prisma:loadEnv project root found at D:\FullStackDevlop Project\Url Memory\node_modules\@prisma\client\package.json +7ms
+prisma:getSchema prismaConfig {
+  "packagePath": "D:\\FullStackDevlop Project\\Url Memory\\package.json"
+} +2ms
+prisma:getGenerators neededVersions {
+  "605197351a3c8bdd595af2d2a9bc3025bca48ea2": {
+    "engines": [
+      "libqueryEngine"
+    ],
+    "binaryTargets": [
+      {
+        "fromEnvVar": null,
+        "value": "windows",
+        "native": true
+      }
+    ]
+  }
+} +0ms
+prisma:getGenerators {
+  "generatorBinaryPaths": {
+    "libqueryEngine": {
+      "windows": "D:\\FullStackDevlop Project\\Url Memory\\node_modules\\prisma\\query_engine-windows.dll.node"
+    }
+  }
+} +236ms
+prisma:tryLoadEnv Environment variables not found at null +15ms
+prisma:tryLoadEnv Environment variables loaded from D:\FullStackDevlop Project\Url Memory\.env +0ms
+Error: Error: 
+EPERM: operation not permitted, rename 'D:\FullStackDevlop Project\Url Memory\node_modules\.prisma\client\query_engine-windows.dll.node.tmp9512' -> 'D:\FullStackDevlop Project\Url Memory\node_modules\.prisma\client\query_engine-windows.dll.node'
+
+
+    at Nm.parse (D:\FullStackDevlop Project\Url Memory\node_modules\prisma\build\index.js:1494:71)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async aAt (D:\FullStackDevlop Project\Url Memory\node_modules\prisma\build\index.js:2002:1678)
