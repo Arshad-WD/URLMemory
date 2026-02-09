@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Updated for deployment
+  url      = env("DATABASE_URL") // Debug Check 1: Ensure this line is deployed
 }
 
 model User {
