@@ -1,27 +1,27 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 interface ReminderEmailProps {
-    to: string
-    bookmarkTitle: string | null
-    bookmarkUrl: string
-    message?: string | null
+  to: string
+  bookmarkTitle: string | null
+  bookmarkUrl: string
+  message?: string | null
 }
 
 export async function sendReminderEmail({ to, bookmarkTitle, bookmarkUrl, message }: ReminderEmailProps) {
-    if (!process.env.RESEND_API_KEY) {
-        console.log('📧 Email would be sent to:', to)
-        console.log('   Bookmark:', bookmarkTitle || bookmarkUrl)
-        return { success: true, mock: true }
-    }
+  if (!process.env.RESEND_API_KEY) {
+    console.log('📧 Email would be sent to:', to)
+    console.log('   Bookmark:', bookmarkTitle || bookmarkUrl)
+    return { success: true, mock: true }
+  }
 
-    try {
-        const { data, error } = await resend.emails.send({
-            from: 'Memory <reminders@resend.dev>',
-            to: [to],
-            subject: `🔔 Reminder: ${bookmarkTitle || 'Your saved link'}`,
-            html: `
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Memory <reminders@resend.dev>',
+      to: [to],
+      subject: `🔔 Reminder: ${bookmarkTitle || 'Your saved link'}`,
+      html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -54,16 +54,16 @@ export async function sendReminderEmail({ to, bookmarkTitle, bookmarkUrl, messag
         </body>
         </html>
       `,
-        })
+    })
 
-        if (error) {
-            console.error('Email send error:', error)
-            return { success: false, error }
-        }
-
-        return { success: true, data }
-    } catch (error) {
-        console.error('Email service error:', error)
-        return { success: false, error }
+    if (error) {
+      console.error('Email send error:', error)
+      return { success: false, error }
     }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error('Email service error:', error)
+    return { success: false, error }
+  }
 }
