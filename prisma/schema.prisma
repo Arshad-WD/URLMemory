@@ -18,6 +18,10 @@ model User {
   sessions      Session[]
   bookmarks     Bookmark[]
   tags          Tag[]
+  notes         Note[]
+  todos         Todo[]
+  memberships   RoomMember[]
+  roomsOwned    Room[]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
@@ -135,6 +139,82 @@ model Reminder {
   @@index([scheduledAt, status])
 }
 
+// New Models for Notes, Todos, Rooms
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String?
+  content   String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId    String?
+  room      Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([roomId])
+}
+
+model Todo {
+  id        String   @id @default(cuid())
+  task      String
+  isDone    Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId    String?
+  room      Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([roomId])
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     RoomMember[]
+  notes       Note[]
+  todos       Todo[]
+  bookmarks   RoomBookmark[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model RoomMember {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      RoomRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  @@unique([roomId, userId])
+  @@index([userId])
+  @@index([roomId])
+}
+
+model RoomBookmark {
+  id         String   @id @default(cuid())
+  url        String
+  title      String?
+  note       String?  @db.Text
+  roomId     String
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  addedById  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([roomId])
+}
+
 enum BookmarkStatus {
   PENDING
   DONE
@@ -145,4 +225,11 @@ enum ReminderStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+enum RoomRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }

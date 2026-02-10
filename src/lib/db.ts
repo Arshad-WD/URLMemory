@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
+// Force type refresh
 const prismaClientSingleton = () => {
     return new PrismaClient()
 }

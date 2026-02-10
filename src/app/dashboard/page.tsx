@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { 
   Link as LinkIcon, Bell, Trash2, ExternalLink, Clock, Sparkles, X, Search, 
-  Check, Plus, Sun, Moon, LogOut, Bookmark, LayoutGrid, List, Star, Tag as TagIcon
+  Check, Plus, Sun, Moon, LogOut, Bookmark, LayoutGrid, List, Star, Tag as TagIcon,
+  FileText, CheckSquare, Users
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReminderModal from '@/components/ReminderModal'
 import TagManager from '@/components/TagManager'
+
+import BottomNav from '@/components/BottomNav'
+import DesktopSidebar from '@/components/DesktopSidebar'
 
 interface Tag {
   id: string
@@ -240,55 +244,27 @@ export default function Dashboard() {
 
       {/* Desktop Layout */}
       <div className="flex">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 z-40">
-          <div className="p-6 border-b border-gray-100 dark:border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25 rotate-3">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Memory</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Your link library</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="p-4">
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowAddInput(true)}
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all">
-              <Plus className="w-5 h-5" /> Add New Link
-            </motion.button>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
-            <button onClick={() => setFilter('all')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${filter === 'all' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-              <Bookmark className="w-5 h-5" /> All Links
-              <span className="ml-auto text-sm bg-gray-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{bookmarks.length}</span>
-            </button>
-            <button onClick={() => setFilter('favorites')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${filter === 'favorites' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-              <Star className="w-5 h-5" /> Favorites
-              <span className="ml-auto text-sm bg-gray-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{favoritesCount}</span>
-            </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
-              <Bell className="w-5 h-5" /> Reminders
-              {pendingReminders > 0 && <span className="ml-auto text-sm bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2.5 py-0.5 rounded-full">{pendingReminders}</span>}
-            </button>
-            <button onClick={() => setShowTagManager(true)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
-              <Plus className="w-5 h-5 text-indigo-500" /> Manage Tags
-            </button>
-          </nav>
-
-          <div className="p-4 border-t border-gray-100 dark:border-slate-800 space-y-1">
-            <button onClick={toggleTheme} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
-              {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </button>
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-              <LogOut className="w-5 h-5" /> Sign Out
-            </button>
-          </div>
-        </aside>
+        <DesktopSidebar 
+          onAction={() => setShowAddInput(true)} 
+          actionLabel="Add New Link"
+        >
+          <button onClick={() => setFilter('all')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${filter === 'all' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+            <Bookmark className="w-5 h-5" /> All Links
+            <span className="ml-auto text-sm bg-gray-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{bookmarks.length}</span>
+          </button>
+          <button onClick={() => setFilter('favorites')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${filter === 'favorites' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+            <Star className="w-5 h-5" /> Favorites
+            <span className="ml-auto text-sm bg-gray-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{favoritesCount}</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+            <Bell className="w-5 h-5" /> Reminders
+            {pendingReminders > 0 && <span className="ml-auto text-sm bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2.5 py-0.5 rounded-full">{pendingReminders}</span>}
+          </button>
+          <button onClick={() => setShowTagManager(true)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+            <TagIcon className="w-5 h-5 text-indigo-500" /> Manage Tags
+          </button>
+        </DesktopSidebar>
 
         {/* Main Content */}
         <main className="flex-1 lg:ml-72 min-h-screen">
@@ -397,33 +373,9 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      <motion.nav initial={{ y: 100 }} animate={{ y: 0 }} transition={{ delay: 0.2, type: 'spring' }} className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-slate-950 dark:via-slate-950">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-purple-500/10 rounded-2xl blur-xl" />
-          <div className="relative flex items-center justify-around bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl py-2 px-4">
-            <button onClick={() => setFilter('all')} className={`flex flex-col items-center gap-0.5 p-2 ${filter === 'all' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`}>
-              <Bookmark className="w-5 h-5" />
-              <span className="text-[9px] font-semibold">All</span>
-            </button>
-            <button onClick={() => setFilter('favorites')} className={`flex flex-col items-center gap-0.5 p-2 ${filter === 'favorites' ? 'text-yellow-500' : 'text-gray-400'}`}>
-              <Star className="w-5 h-5" />
-              <span className="text-[9px] font-semibold">Starred</span>
-            </button>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowAddInput(true)} className="relative -mt-5 p-4 bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 text-white rounded-2xl shadow-xl shadow-violet-500/40">
-              <Plus className="w-6 h-6" strokeWidth={2.5} />
-            </motion.button>
-            <button onClick={() => setStatusFilter(statusFilter === 'DONE' ? 'PENDING' : 'DONE')} className="relative flex flex-col items-center gap-0.5 p-2 text-gray-400">
-              <Check className={`w-5 h-5 ${statusFilter === 'DONE' ? 'text-emerald-500' : ''}`} />
-              <span className="text-[9px] font-semibold">{statusFilter === 'DONE' ? 'Done' : 'Pending'}</span>
-            </button>
-            <button onClick={toggleTheme} className="flex flex-col items-center gap-0.5 p-2 text-gray-400">
-              {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
-              <span className="text-[9px] font-semibold">Theme</span>
-            </button>
-          </div>
-        </div>
-      </motion.nav>
+      <BottomNav onAddClick={() => setShowAddInput(true)} />
+
+      {/* Add Modal */}
 
       {/* Add Modal */}
       <AnimatePresence>

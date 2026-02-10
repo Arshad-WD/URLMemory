@@ -1,20 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Home, Plus, Bell, User, Sun, Moon, Settings, LogOut } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Home, Plus, Bell, FileText, CheckSquare, Users, Sun, Moon, LogOut } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface BottomNavProps {
   onAddClick: () => void
-  activeTab?: 'home' | 'reminders' | 'profile'
 }
 
-export default function BottomNav({ onAddClick, activeTab = 'home' }: BottomNavProps) {
+export default function BottomNav({ onAddClick }: BottomNavProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [mounted, setMounted] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     setMounted(true)
@@ -43,149 +42,89 @@ export default function BottomNav({ onAddClick, activeTab = 'home' }: BottomNavP
   }
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'Home' },
+    { id: 'home', icon: Home, label: 'Home', path: '/dashboard' },
+    { id: 'notes', icon: FileText, label: 'Notes', path: '/notes' },
     { id: 'add', icon: Plus, label: 'Add', isAction: true },
-    { id: 'reminders', icon: Bell, label: 'Reminders' },
+    { id: 'todos', icon: CheckSquare, label: 'Todos', path: '/todos' },
+    { id: 'rooms', icon: Users, label: 'Rooms', path: '/rooms' },
   ]
+
+  const getActiveTab = () => {
+    if (pathname === '/dashboard' || pathname === '/') return 'home'
+    if (pathname.startsWith('/notes')) return 'notes'
+    if (pathname.startsWith('/todos')) return 'todos'
+    if (pathname.startsWith('/rooms')) return 'rooms'
+    if (pathname.startsWith('/reminders')) return 'reminders'
+    return ''
+  }
+
+  const activeTab = getActiveTab()
 
   if (!mounted) return null
 
   return (
     <>
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <aside className="hidden lg:flex fixed left-6 top-1/2 -translate-y-1/2 z-50 flex-col gap-3">
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-2 flex flex-col gap-2">
-          {navItems.map((item) => (
-            <motion.button
-              key={item.id}
-              onClick={() => item.id === 'add' && onAddClick()}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-3 rounded-xl transition-all ${
-                item.isAction 
-                  ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30'
-                  : activeTab === item.id
-                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
-              }`}
-              title={item.label}
-            >
-              <item.icon className="w-5 h-5" />
-            </motion.button>
-          ))}
-        </div>
-        
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-2 flex flex-col gap-2">
-          <motion.button
-            onClick={toggleTheme}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-3 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all"
-            title="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
-          </motion.button>
-          <motion.button
-            onClick={handleLogout}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-3 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-            title="Logout"
-          >
-            <LogOut className="w-5 h-5" />
-          </motion.button>
-        </div>
-      </aside>
 
-      {/* Mobile Bottom Nav */}
+
+      {/* Mobile Bottom Nav - Premium Floating Design */}
       <motion.nav
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 30 }}
-        className="lg:hidden fixed bottom-4 left-4 right-4 z-50"
+        className="lg:hidden fixed bottom-6 left-6 right-6 z-50 pointer-events-none"
       >
-        <div className="relative max-w-sm mx-auto">
-          {/* Glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/30 via-violet-500/30 to-purple-500/30 rounded-[1.75rem] blur-xl opacity-60" />
-          
-          {/* Main nav container */}
-          <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-[1.75rem] border border-gray-200/60 dark:border-slate-700/60 shadow-2xl shadow-black/10 dark:shadow-black/30 px-4 py-2">
-            <div className="flex items-center justify-around">
-              {/* Home */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className={`flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all ${
-                  activeTab === 'home' 
-                    ? 'text-indigo-600 dark:text-indigo-400' 
-                    : 'text-gray-400 dark:text-gray-500'
-                }`}
-              >
-                <Home className="w-5 h-5" />
-                <span className="text-[9px] font-semibold">Home</span>
-              </motion.button>
+        <div className="pointer-events-auto max-w-md mx-auto">
+          <div className="relative">
+            {/* Ambient Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-2xl rounded-3xl" />
+            
+            {/* Glass Container */}
+            <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-slate-700/30 rounded-3xl shadow-2xl shadow-black/10 dark:shadow-black/40 px-2 py-2.5">
+              <div className="flex items-center justify-between px-2">
+                
+                {navItems.map((item) => {
+                  if (item.isAction) {
+                    return (
+                        <div key={item.id} className="relative -mt-8 mx-2">
+                             <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={onAddClick}
+                                className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-full text-white shadow-xl shadow-indigo-500/40 border-4 border-white dark:border-slate-900"
+                            >
+                                <Plus className="w-7 h-7" strokeWidth={2.5} />
+                            </motion.button>
+                        </div>
+                    )
+                  }
 
-              {/* Add Button - Elevated */}
-              <motion.button
-                onClick={onAddClick}
-                whileTap={{ scale: 0.9 }}
-                className="relative -mt-6 p-4 bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 text-white rounded-2xl shadow-xl shadow-indigo-500/40"
-              >
-                <Plus className="w-6 h-6" strokeWidth={2.5} />
-              </motion.button>
-
-              {/* Reminders */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className={`flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all ${
-                  activeTab === 'reminders' 
-                    ? 'text-indigo-600 dark:text-indigo-400' 
-                    : 'text-gray-400 dark:text-gray-500'
-                }`}
-              >
-                <Bell className="w-5 h-5" />
-                <span className="text-[9px] font-semibold">Alerts</span>
-              </motion.button>
+                  const isActive = activeTab === item.id
+                  return (
+                    <motion.button
+                      key={item.id}
+                      onClick={() => router.push(item.path!)}
+                      whileTap={{ scale: 0.9 }}
+                      className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ${
+                        isActive 
+                          ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' 
+                          : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-indicator"
+                          className="absolute -bottom-1 w-1 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                    </motion.button>
+                  )
+                })}
+              </div>
             </div>
           </div>
-
-          {/* Theme toggle - Mobile */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={toggleTheme}
-            className="absolute -top-2 right-2 p-2 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-gray-100 dark:border-slate-700"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5 text-yellow-500" />
-            ) : (
-              <Moon className="w-3.5 h-3.5 text-slate-600" />
-            )}
-          </motion.button>
         </div>
       </motion.nav>
-
-      {/* Profile Menu */}
-      {showProfile && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="fixed bottom-24 right-4 z-50 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 p-2 min-w-[160px]"
-        >
-          <button
-            onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span className="text-sm font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="text-sm font-medium">Logout</span>
-          </button>
-        </motion.div>
-      )}
     </>
   )
 }
