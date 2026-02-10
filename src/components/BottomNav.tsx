@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Plus, Bell, FileText, CheckSquare, Users, Sun, Moon, LogOut } from 'lucide-react'
+import { Home, Plus, FileText, CheckSquare, Users, Sun, Moon } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 
 interface BottomNavProps {
@@ -12,6 +12,7 @@ interface BottomNavProps {
 export default function BottomNav({ onAddClick }: BottomNavProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [mounted, setMounted] = useState(false)
+  const [showThemeMenu, setShowThemeMenu] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -36,11 +37,6 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
   }
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/auth/login')
-  }
-
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', path: '/dashboard' },
     { id: 'notes', icon: FileText, label: 'Notes', path: '/notes' },
@@ -54,7 +50,6 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
     if (pathname.startsWith('/notes')) return 'notes'
     if (pathname.startsWith('/todos')) return 'todos'
     if (pathname.startsWith('/rooms')) return 'rooms'
-    if (pathname.startsWith('/reminders')) return 'reminders'
     return ''
   }
 
@@ -64,7 +59,17 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
 
   return (
     <>
-
+      {/* Theme Toggle - Floating button top right on mobile */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={toggleTheme}
+        className="lg:hidden fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-lg flex items-center justify-center text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </motion.button>
 
       {/* Mobile Bottom Nav - Premium Floating Design */}
       <motion.nav

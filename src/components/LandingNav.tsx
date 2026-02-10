@@ -40,7 +40,7 @@ export default function LandingNav() {
                   Sign In
                 </Link>
                 <Link 
-                  href="/auth/register"
+                  href="/auth/signup"
                   className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg md:rounded-full font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20"
                 >
                   Get Started

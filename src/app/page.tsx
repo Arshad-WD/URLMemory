@@ -66,7 +66,7 @@ export default function Home() {
             <FadeUp delay={0.3}>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link 
-                  href="/auth/register"
+                  href="/auth/signup"
                   className="group w-full sm:w-auto px-8 py-4 bg-white text-black rounded-full font-bold text-base hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-all flex items-center justify-center gap-2"
                 >
                   Start for Free <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

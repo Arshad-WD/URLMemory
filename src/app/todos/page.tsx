@@ -175,7 +175,7 @@ export default function TodosPage() {
                     e.stopPropagation()
                     handleDelete(todo.id)
                   }}
-                  className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                  className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Users, ArrowRight, X } from 'lucide-react'
+import { Plus, Users, ArrowRight, X, Trash2 } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import DesktopSidebar from '@/components/DesktopSidebar'
 import { useRouter } from 'next/navigation'
@@ -63,6 +63,19 @@ export default function RoomsPage() {
       }
     } catch (error) {
       console.error('Failed to create room', error)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this room?')) return
+
+    try {
+      const res = await fetch(`/api/rooms/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setRooms(rooms.filter(r => r.id !== id))
+      }
+    } catch (error) {
+      console.error('Failed to delete room', error)
     }
   }
 
@@ -150,17 +163,36 @@ export default function RoomsPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.02 }}
-                onClick={() => router.push(`/rooms/${room.id}`)}
-                className="group bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 border border-gray-100 dark:border-slate-800 transition-all cursor-pointer relative overflow-hidden"
+                className="group bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 border border-gray-100 dark:border-slate-800 transition-all relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight className="w-5 h-5 text-indigo-500 -translate-x-2 group-hover:translate-x-0 transition-transform" />
+                <div className="flex justify-between items-start mb-1">
+                  <h3 
+                    className="font-bold text-lg text-gray-900 dark:text-slate-100 pr-8 cursor-pointer"
+                    onClick={() => router.push(`/rooms/${room.id}`)}
+                  >
+                    {room.name}
+                  </h3>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => router.push(`/rooms/${room.id}`)}
+                      className="p-1.5 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    {room.role === 'OWNER' && (
+                      <button
+                        onClick={() => handleDelete(room.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                
-                <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-1 pr-8">
-                  {room.name}
-                </h3>
-                <p className="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[1.25rem]">
+                <p 
+                  className="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[1.25rem] cursor-pointer"
+                  onClick={() => router.push(`/rooms/${room.id}`)}
+                >
                   {room.description || 'No description'}
                 </p>
 
