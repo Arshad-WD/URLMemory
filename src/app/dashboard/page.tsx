@@ -447,7 +447,7 @@ function BookmarkCard({ bm, i, viewMode, onUpdate, onDelete, onReminder, allTags
 
   return (
     <motion.article layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.02 }}
-      className={`group bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-200 ${viewMode === 'list' ? 'flex items-center p-4 gap-4' : 'p-5'}`}>
+      className={`group bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-200 overflow-hidden ${viewMode === 'list' ? 'flex items-center p-4 gap-4' : 'p-5'}`}>
       <div className={`${viewMode === 'list' ? 'w-12 h-12' : 'w-14 h-14 mb-4'} rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 relative`}>
         {bm.faviconUrl ? <img src={bm.faviconUrl} alt="" className="w-7 h-7 object-contain" /> : <LinkIcon className="w-6 h-6 text-gray-400" />}
         <div className="absolute -top-1 -right-1 flex gap-1">
@@ -508,7 +508,7 @@ function BookmarkCard({ bm, i, viewMode, onUpdate, onDelete, onReminder, allTags
           )}
         </AnimatePresence>
         
-        <div className={`flex items-center gap-1 overflow-x-auto no-scrollbar ${viewMode === 'list' ? '' : 'mt-4 pt-4 border-t border-gray-100 dark:border-slate-800'}`}>
+        <div className={`flex items-center flex-wrap gap-1 ${viewMode === 'list' ? '' : 'mt-4 pt-4 border-t border-gray-100 dark:border-slate-800'}`}>
           <a href={bm.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all">
             <ExternalLink className="w-3.5 h-3.5" /> Open
           </a>

@@ -59,13 +59,13 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
 
   return (
     <>
-      {/* Theme Toggle - Floating button top right on mobile */}
+      {/* Theme Toggle - Floating button, positioned to avoid header overlap */}
       <motion.button
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         whileTap={{ scale: 0.9 }}
         onClick={toggleTheme}
-        className="lg:hidden fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-lg flex items-center justify-center text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+        className="lg:hidden fixed top-[72px] right-4 z-50 w-9 h-9 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-lg flex items-center justify-center text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
         aria-label="Toggle theme"
       >
         {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
