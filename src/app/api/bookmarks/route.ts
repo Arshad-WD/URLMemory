@@ -32,7 +32,6 @@ export async function GET(req: Request) {
                 tags: true
             },
             orderBy: [
-                { position: 'asc' },
                 { isPinned: 'desc' },
                 { isFavorite: 'desc' },
                 { createdAt: 'desc' }

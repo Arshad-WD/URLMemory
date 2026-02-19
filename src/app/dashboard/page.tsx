@@ -8,7 +8,7 @@ import {
   Check, Plus, Sun, Moon, LogOut, Bookmark, LayoutGrid, List, Star, Tag as TagIcon,
   FileText, CheckSquare, Users, GripVertical
 } from 'lucide-react'
-import { motion, AnimatePresence, Reorder } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import ReminderModal from '@/components/ReminderModal'
 import TagManager from '@/components/TagManager'
 
@@ -188,44 +188,6 @@ export default function Dashboard() {
     handleUpdateBookmark(id, { status })
   }
 
-  const handleReorder = async (reorderedItems: BookmarkData[]) => {
-    // Create a map for quick lookup
-    const reorderedMap = new Map(reorderedItems.map((item, index) => [item.id, { item, index }]))
-    
-    // Merge back into the main bookmarks state while preserving order of non-reordered items
-    const newBookmarks = bookmarks.map(bm => {
-        if (reorderedMap.has(bm.id)) {
-            return reorderedMap.get(bm.id)!.item
-        }
-        return bm
-    })
-
-    // Sort the entire list so that reordered items appear in their new relative positions
-    // This is tricky. A simpler way is to just replace the slice.
-    
-    const firstReorderedIndex = bookmarks.findIndex(bm => reorderedMap.has(bm.id))
-    const finalBookmarks = [...bookmarks]
-    if (firstReorderedIndex !== -1) {
-        let rIndex = 0
-        for (let i = 0; i < finalBookmarks.length; i++) {
-            if (reorderedMap.has(finalBookmarks[i].id)) {
-                finalBookmarks[i] = reorderedItems[rIndex++]
-            }
-        }
-    }
-
-    setBookmarks(finalBookmarks)
-    
-    try {
-      await fetch('/api/bookmarks/reorder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookmarkIds: finalBookmarks.map(b => b.id) })
-      })
-    } catch (e) {
-      console.error('Failed to save order', e)
-    }
-  }
 
   const handleSetReminder = async (date: Date) => {
     if (!selectedBookmark) return
@@ -412,21 +374,11 @@ export default function Dashboard() {
                       Recently Added
                    </h2>
                    <div className="relative">
-                    <Reorder.Group 
-                        axis="y" 
-                        values={filteredBookmarks.filter(b => !b.isPinned)} 
-                        onReorder={handleReorder}
-                        className={`grid gap-4 ${viewMode === 'grid' ? 'lg:grid-cols-2 xl:grid-cols-3' : ''}`}
-                    >
+                    <div className={`grid gap-4 ${viewMode === 'grid' ? 'lg:grid-cols-2 xl:grid-cols-3' : ''}`}>
                         <AnimatePresence mode="popLayout" initial={false}>
                         {filteredBookmarks.filter(b => !b.isPinned).map((bm, i) => (
-                            <Reorder.Item 
-                                key={bm.id} 
-                                value={bm}
-                                dragListener={true}
-                                className="relative"
-                            >
                                 <BookmarkCard 
+                                    key={bm.id}
                                     bm={bm} 
                                     i={i} 
                                     viewMode={viewMode} 
@@ -435,10 +387,9 @@ export default function Dashboard() {
                                     onReminder={() => { setSelectedBookmark(bm); setShowReminderModal(true) }} 
                                     allTags={tags} 
                                 />
-                            </Reorder.Item>
                         ))}
                         </AnimatePresence>
-                    </Reorder.Group>
+                    </div>
                   </div>
                 </section>
               </>
@@ -523,10 +474,6 @@ function BookmarkCard({ bm, i, viewMode, onUpdate, onDelete, onReminder, allTags
     <motion.article layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.02 }}
       className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-200 overflow-hidden ${viewMode === 'list' ? 'flex items-center p-4 gap-4' : 'p-5'}`}>
       
-      {/* Drag handle */}
-      <div className="absolute top-2 right-2 p-1 text-gray-300 dark:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-        <GripVertical className="w-4 h-4" />
-      </div>
       <div className={`${viewMode === 'list' ? 'w-12 h-12' : 'w-14 h-14 mb-4'} rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 relative`}>
         {bm.faviconUrl ? <img src={bm.faviconUrl} alt="" className="w-7 h-7 object-contain" /> : <LinkIcon className="w-6 h-6 text-gray-400" />}
         <div className="absolute -top-1 -right-1 flex gap-1">
