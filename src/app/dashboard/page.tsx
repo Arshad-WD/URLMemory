@@ -58,7 +58,7 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [filter, setFilter] = useState<'all' | 'favorites' | 'pinned' | 'readlater'>('all')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'PENDING' | 'DONE' | 'IGNORED'>('PENDING')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'PENDING' | 'DONE' | 'IGNORED'>('all')
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -76,6 +76,10 @@ export default function Dashboard() {
     fetchBookmarks()
     fetchTags()
   }, [])
+
+  useEffect(() => {
+    if (mounted) fetchBookmarks()
+  }, [statusFilter, selectedTagId])
 
   useEffect(() => {
     if (showAddInput && inputRef.current) inputRef.current.focus()
@@ -301,6 +305,15 @@ export default function Dashboard() {
                     className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedTagId === tag.id ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}>
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color || '#6366f1' }} />
                     {tag.name}
+                  </button>
+                ))}
+                
+                <div className="flex-shrink-0 w-px h-4 bg-gray-200 dark:bg-slate-800 mx-2" />
+                
+                {(['all', 'PENDING', 'DONE'] as const).map(s => (
+                  <button key={s} onClick={() => setStatusFilter(s)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${statusFilter === s ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}>
+                    {s === 'all' ? 'All Status' : s === 'PENDING' ? 'Pending' : 'Done'}
                   </button>
                 ))}
               </div>

@@ -35,6 +35,7 @@ export async function GET(req: Request) {
 
         for (const reminder of dueReminders) {
             try {
+                console.log(`⏰ Processing reminder ${reminder.id} for user ${reminder.bookmark.user.email}`)
                 // Send email
                 const emailResult = await sendReminderEmail({
                     to: reminder.bookmark.user.email,
@@ -43,11 +44,17 @@ export async function GET(req: Request) {
                     message: reminder.message
                 })
 
+                if (!emailResult.success) {
+                    throw new Error(emailResult.error ? JSON.stringify(emailResult.error) : 'Unknown email error')
+                }
+
                 // Update status to COMPLETED
                 await prisma.reminder.update({
                     where: { id: reminder.id },
                     data: { status: 'COMPLETED' }
                 })
+
+                console.log(`✅ Successfully processed reminder ${reminder.id}`)
 
                 results.push({
                     id: reminder.id,

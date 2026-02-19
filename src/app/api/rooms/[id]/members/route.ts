@@ -136,3 +136,57 @@ export async function POST(
         return new NextResponse('Internal Server Error', { status: 500 })
     }
 }
+
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ id: string }> }
+) {
+    const params = await props.params;
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return new NextResponse('Unauthorized', { status: 401 })
+        }
+
+        const roomId = params.id
+        const userId = session.user.id
+
+        // Check if user is a member
+        const membership = await prisma.roomMember.findUnique({
+            where: {
+                roomId_userId: {
+                    roomId,
+                    userId
+                }
+            }
+        })
+
+        if (!membership) {
+            return new NextResponse('Not a member of this room', { status: 404 })
+        }
+
+        // If owner, check if they are the last member
+        if (membership.role === 'OWNER') {
+            const memberCount = await prisma.roomMember.count({
+                where: { roomId }
+            })
+            if (memberCount > 1) {
+                return new NextResponse('Owner cannot leave a room with other members. Transfer ownership first.', { status: 400 })
+            }
+            // If last member and owner, they can leave (effectively leaving an empty room that might be cleaned up or they can delete it)
+            // But usually it's better to tell them to delete the room.
+        }
+
+        await prisma.roomMember.delete({
+            where: {
+                id: membership.id
+            }
+        })
+
+        return new NextResponse(null, { status: 204 })
+
+    } catch (error) {
+        console.error('Failed to leave room:', error)
+        return new NextResponse('Internal Server Error', { status: 500 })
+    }
+}
