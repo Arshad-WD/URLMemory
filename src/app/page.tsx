@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Sparkles, Bookmark, FileText, CheckSquare, Users, ArrowRight, Globe, Lock, Zap, Layers } from 'lucide-react'
+import { Sparkles, Bookmark, FileText, CheckSquare, Users, ArrowRight, Globe, Lock, Zap, Layers, ShieldCheck, Activity, Terminal } from 'lucide-react'
 import LandingNav from '@/components/LandingNav'
+import MagneticEffect from '@/components/MagneticEffect'
 
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode, delay?: number, className?: string }) {
   return (
@@ -21,184 +22,168 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#050506] text-white overflow-hidden selection:bg-indigo-500/30">
-      {/* Ambient Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-30%] left-[20%] w-[600px] h-[600px] bg-indigo-600/15 rounded-full blur-[150px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[10%] w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[140px]" />
-        <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] bg-blue-600/[0.08] rounded-full blur-[120px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+    <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-primary/20">
+      {/* Abyssal Grid Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.05]">
+        <div className="absolute inset-0 bg-[linear-gradient(var(--color-border)_1px,transparent_1px),linear-gradient(90deg,var(--color-border)_1px,transparent_1px)] bg-[size:48px_48px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
       </div>
 
       <LandingNav />
 
       <main className="relative z-10">
 
-        {/* ─── Hero Section ─── */}
-        <section className="pt-36 pb-24 px-4 md:px-8">
-          <div className="max-w-5xl mx-auto text-center">
+        {/* ─── Hero Section: MISSION_CONTROL ─── */}
+        <section className="pt-48 pb-32 px-6">
+          <div className="max-w-6xl mx-auto">
             <FadeUp>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-gray-400 mb-8">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Open &amp; Free Forever
+              <div className="inline-flex items-center gap-3 px-4 py-1.5 border-2 border-primary/20 bg-primary/5 text-[10px] font-black uppercase tracking-[0.3em] mb-12">
+                <div className="w-2 h-2 bg-primary animate-pulse" />
+                SYSTEM_STATUS: OPERATIONAL // V.2.4.0
               </div>
             </FadeUp>
 
-            <FadeUp delay={0.1}>
-              <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tighter leading-[0.9] mb-8">
-                <span className="bg-gradient-to-b from-white via-white to-gray-600 bg-clip-text text-transparent">
-                  Stop forgetting.
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                  Start remembering.
-                </span>
-              </h1>
-            </FadeUp>
-
-            <FadeUp delay={0.2}>
-              <p className="text-lg md:text-xl text-gray-500 max-w-xl mx-auto mb-12 leading-relaxed font-light">
-                A beautifully minimal workspace to save your links, write notes, 
-                manage tasks, and collaborate — all in one place.
-              </p>
-            </FadeUp>
-
-            <FadeUp delay={0.3}>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link 
-                  href="/auth/signup"
-                  className="group w-full sm:w-auto px-8 py-4 bg-white text-black rounded-full font-bold text-base hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-all flex items-center justify-center gap-2"
-                >
-                  Start for Free <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link 
-                  href="/auth/login"
-                  className="w-full sm:w-auto px-8 py-4 text-gray-400 hover:text-white rounded-full font-medium text-base transition-colors"
-                >
-                  I have an account →
-                </Link>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+              <div className="lg:col-span-8">
+                <FadeUp delay={0.1}>
+                  <h1 className="text-6xl sm:text-8xl md:text-[9rem] font-black italic tracking-tighter leading-[0.85] mb-8 uppercase">
+                    Unified<br />
+                    <span className="text-primary italic">Intelligence.</span>
+                  </h1>
+                </FadeUp>
+                <FadeUp delay={0.2}>
+                  <p className="text-lg md:text-2xl text-muted-foreground max-w-2xl mb-12 font-black uppercase tracking-widest leading-tight">
+                    The premium industrial workspace for your bookmarks, 
+                    records, and shared missions. No fluff. Just raw utility.
+                  </p>
+                </FadeUp>
               </div>
-            </FadeUp>
+              
+              <div className="lg:col-span-4 pb-4">
+                <FadeUp delay={0.3}>
+                  <div className="flex flex-col gap-4">
+                    <MagneticEffect strength={0.2}>
+                      <Link 
+                        href="/auth/signup"
+                        className="btn-industrial py-6 text-xl flex items-center justify-center gap-4 group"
+                      >
+                        INITIALIZE_ACCOUNT <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" strokeWidth={3} />
+                      </Link>
+                    </MagneticEffect>
+                    <Link 
+                      href="/auth/login"
+                      className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground hover:text-primary transition-all text-center py-4 border-2 border-transparent hover:border-border"
+                    >
+                      ESTABLISH_UPLINK_PROTOCOL →
+                    </Link>
+                  </div>
+                </FadeUp>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ─── Bento Grid Features ─── */}
-        <section className="py-20 px-4 md:px-8">
-          <div className="max-w-6xl mx-auto">
-            <FadeUp>
-              <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-4">
-                Everything you need
-              </p>
-            </FadeUp>
-            <FadeUp delay={0.1}>
-              <h2 className="text-3xl md:text-5xl font-bold text-center mb-16 tracking-tight">
-                Four tools. <span className="text-gray-500">One home.</span>
-              </h2>
-            </FadeUp>
+        {/* ─── Bento Core Features ─── */}
+        <section className="py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+              <FadeUp>
+                <div className="max-w-xl">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-4">CORE_SUITE</p>
+                  <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter">
+                    FOUR_TOOLS.<br /><span className="text-muted-foreground/30">ONE_COMMAND_CENTER.</span>
+                  </h2>
+                </div>
+              </FadeUp>
+              <FadeUp delay={0.1}>
+                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground rotate-90 md:rotate-0 origin-left">
+                  SCROLL_FOR_INTEL
+                </div>
+              </FadeUp>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FadeUp delay={0.2}>
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] hover:border-indigo-500/20 transition-all duration-500 overflow-hidden h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
-                      <Bookmark className="w-6 h-6 text-indigo-400" />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <FadeUp delay={0.2} className="md:col-span-12 lg:col-span-7">
+                <div className="bento-card p-12 h-full group">
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="w-16 h-16 bg-primary flex items-center justify-center border-2 border-foreground shadow-[6px_6px_0px_0px_var(--color-border)] mb-10">
+                        <Bookmark className="w-8 h-8 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                      <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">RESOURCE_INDEXING</h3>
+                      <p className="text-muted-foreground font-black uppercase tracking-widest text-[11px] leading-relaxed max-w-md">Metadata-enriched bookmarking system. Capture URLs, preserve favicons, and maintain context across all terminal instances.</p>
                     </div>
-                    <h3 className="text-xl font-bold mb-3">Smart Bookmarks</h3>
-                    <p className="text-gray-500 leading-relaxed mb-6">Save any URL with one click. We auto-fetch titles, favicons, and metadata so you never lose context.</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Auto-Metadata', 'Favorites', 'Tags', 'Search'].map(tag => (
-                        <span key={tag} className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-xs text-gray-400">{tag}</span>
+                    <div className="mt-12 flex gap-3 flex-wrap">
+                      {['AUTO_SCRAPE', 'FAV_VAULT', 'TAG_FLTR', 'SEARCH_IDX'].map(tag => (
+                        <span key={tag} className="px-3 py-1 border-2 border-border text-[8px] font-black uppercase tracking-widest text-muted-foreground">{tag}</span>
                       ))}
                     </div>
                   </div>
                 </div>
               </FadeUp>
 
-              <FadeUp delay={0.3}>
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] hover:border-emerald-500/20 transition-all duration-500 overflow-hidden h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
-                      <FileText className="w-6 h-6 text-emerald-400" />
+              <FadeUp delay={0.3} className="md:col-span-12 lg:col-span-5">
+                <div className="bento-card p-12 h-full bg-primary/5 group border-primary/20">
+                    <div className="w-16 h-16 bg-muted border-2 border-border flex items-center justify-center mb-10">
+                      <FileText className="w-8 h-8 text-primary" strokeWidth={3} />
                     </div>
-                    <h3 className="text-xl font-bold mb-3">Quick Notes</h3>
-                    <p className="text-gray-500 leading-relaxed mb-6">Capture thoughts the moment they strike. Simple, fast, and always accessible from any device.</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Instant Capture', 'Rich Text', 'Room Notes'].map(tag => (
-                        <span key={tag} className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-xs text-gray-400">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+                    <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">DATA_RECORDS</h3>
+                    <p className="text-muted-foreground font-black uppercase tracking-widest text-[11px] leading-relaxed">High-vis shared notepad for critical mission intel. Instant capture, synced across coalition units.</p>
                 </div>
               </FadeUp>
 
-              <FadeUp delay={0.4}>
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] hover:border-blue-500/20 transition-all duration-500 overflow-hidden h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
-                      <CheckSquare className="w-6 h-6 text-blue-400" />
+              <FadeUp delay={0.4} className="md:col-span-12 lg:col-span-5">
+                <div className="bento-card p-12 h-full group">
+                    <div className="w-16 h-16 bg-muted border-2 border-border flex items-center justify-center mb-10">
+                      <CheckSquare className="w-8 h-8 text-primary" strokeWidth={3} />
                     </div>
-                    <h3 className="text-xl font-bold mb-3">Task Lists</h3>
-                    <p className="text-gray-500 leading-relaxed mb-6">Organize what matters. Track personal tasks or collaborate with your team inside shared rooms.</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Personal', 'Shared', 'Track Progress'].map(tag => (
-                        <span key={tag} className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-xs text-gray-400">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+                    <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">OBJECTIVE_TRACKING</h3>
+                    <p className="text-muted-foreground font-black uppercase tracking-widest text-[11px] leading-relaxed">Command personal and shared tasks. Real-time status updates for coordinated execution.</p>
                 </div>
               </FadeUp>
 
-              <FadeUp delay={0.5}>
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] hover:border-violet-500/20 transition-all duration-500 overflow-hidden h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-6">
-                      <Users className="w-6 h-6 text-violet-400" />
+              <FadeUp delay={0.5} className="md:col-span-12 lg:col-span-7">
+                <div className="bento-card p-12 h-full bg-card shadow-[12px_12px_0px_0px_var(--color-primary)] border-primary group">
+                    <div className="flex justify-between items-start mb-10">
+                        <div className="w-16 h-16 bg-primary flex items-center justify-center text-primary-foreground border-2 border-foreground shadow-[6px_6px_0px_0px_var(--color-border)]">
+                          <Users className="w-8 h-8" strokeWidth={3} />
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">NEW_FEATURE</span>
+                        </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-3">Team Rooms</h3>
-                    <p className="text-gray-500 leading-relaxed mb-6">Create shared spaces with your friends or team. Share bookmarks, notes, and tasks in real-time.</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Invite Members', 'Shared Resources', 'Roles'].map(tag => (
-                        <span key={tag} className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-xs text-gray-400">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+                    <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">SEALED_ROOMS</h3>
+                    <p className="text-muted-foreground font-black uppercase tracking-widest text-[11px] leading-relaxed max-w-md">Encrypted team environments for private collaboration. Shared resource pools, unit roles, and mission audit logs.</p>
                 </div>
               </FadeUp>
             </div>
           </div>
         </section>
 
-        {/* ─── How It Works ─── */}
-        <section className="py-24 px-4 md:px-8">
-          <div className="max-w-4xl mx-auto">
+        {/* ─── System Architecture ─── */}
+        <section className="py-32 px-6 border-y-2 border-border bg-card/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[200px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          
+          <div className="max-w-5xl mx-auto">
             <FadeUp>
-              <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-4">
-                Simple by design
-              </p>
-            </FadeUp>
-            <FadeUp delay={0.1}>
-              <h2 className="text-3xl md:text-5xl font-bold text-center mb-20 tracking-tight">
-                Up and running <span className="text-gray-500">in seconds.</span>
+              <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter mb-24 text-center">
+                INDUSTRIAL_BUILD.<br /><span className="text-muted-foreground/30">BUILT_FOR_STABILITY.</span>
               </h2>
             </FadeUp>
 
-            <div className="space-y-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {[
-                { step: '01', title: 'Create your account', desc: 'Sign up with email or Google. No credit card, no catch — free forever.' },
-                { step: '02', title: 'Save anything', desc: 'Paste a URL, jot a note, or add a task. Everything lives in your personal dashboard.' },
-                { step: '03', title: 'Stay organized', desc: 'Use tags, favorites, and rooms to keep things tidy. Find anything instantly with search.' },
+                { icon: <Zap className="w-6 h-6" />, title: 'LOW_LATENCY', desc: 'Edge-rendered Next.js architecture ensuring zero-second initialization of critical data core loads.' },
+                { icon: <ShieldCheck className="w-6 h-6" />, title: 'SECURE_VAULT', desc: 'Encrypted user session management. Your memory is sovereign. We never access your index data.' },
+                { icon: <Activity className="w-6 h-6" />, title: 'ACTIVE_SYNC', desc: 'Real-time collaborative updates across all coalition terminals. Synchronized objective tracking.' },
               ].map((item, i) => (
-                <FadeUp key={item.step} delay={0.2 + i * 0.1}>
-                  <div className="flex gap-8 items-start">
-                    <span className="text-6xl md:text-8xl font-black text-white/[0.04] shrink-0 leading-none select-none">{item.step}</span>
-                    <div className="pt-2 md:pt-4">
-                      <h3 className="text-xl md:text-2xl font-bold mb-2">{item.title}</h3>
-                      <p className="text-gray-500 text-base md:text-lg leading-relaxed">{item.desc}</p>
+                <FadeUp key={item.title} delay={0.1 + i * 0.1}>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 border-2 border-border bg-card flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_var(--color-border)] text-primary">
+                        {item.icon}
                     </div>
+                    <h3 className="text-xl font-black uppercase tracking-tighter mb-4 italic">{item.title}</h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground leading-relaxed px-4">{item.desc}</p>
                   </div>
                 </FadeUp>
               ))}
@@ -206,66 +191,51 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─── Why Memory ─── */}
-        <section className="py-24 px-4 md:px-8">
-          <div className="max-w-6xl mx-auto">
-            <FadeUp>
-              <h2 className="text-3xl md:text-5xl font-bold text-center mb-16 tracking-tight">
-                Built different. <span className="text-gray-500">On purpose.</span>
-              </h2>
-            </FadeUp>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { icon: <Zap className="w-5 h-5" />, title: 'Blazing Fast', desc: 'Built on Next.js with edge-ready performance. No loading spinners.' },
-                { icon: <Lock className="w-5 h-5" />, title: 'Private by Default', desc: 'Your data is yours. Authenticate securely; we never sell your information.' },
-                { icon: <Globe className="w-5 h-5" />, title: 'Works Everywhere', desc: 'Responsive design that feels native on phone, tablet, or desktop.' },
-                { icon: <Layers className="w-5 h-5" />, title: 'No Clutter', desc: 'A clean interface that stays out of your way. Focus on what matters.' },
-                { icon: <Sparkles className="w-5 h-5" />, title: 'Free Tier', desc: 'Full access to every feature, no paywalls or hidden limits.' },
-                { icon: <Users className="w-5 h-5" />, title: 'Team Ready', desc: 'Invite others into shared rooms for collaborative projects.' },
-              ].map((item, i) => (
-                <FadeUp key={item.title} delay={0.1 + i * 0.08}>
-                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors h-full">
-                    <div className="text-gray-500 mb-4">{item.icon}</div>
-                    <h3 className="font-bold mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
-                  </div>
-                </FadeUp>
-              ))}
+        {/* ─── Final Dispatch CTA ─── */}
+        <section className="py-48 px-6 text-center">
+          <FadeUp className="max-w-3xl mx-auto">
+            <div className="w-20 h-20 bg-primary flex items-center justify-center border-4 border-foreground mx-auto mb-12 shadow-[12px_12px_0px_0px_var(--color-border)] rotate-12 group-hover:rotate-0 transition-transform">
+              <Terminal className="w-10 h-10 text-primary-foreground" strokeWidth={3} />
             </div>
-          </div>
-        </section>
-
-        {/* ─── CTA Section ─── */}
-        <section className="py-32 px-4 md:px-8">
-          <FadeUp className="max-w-3xl mx-auto text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mx-auto mb-8 shadow-2xl shadow-indigo-500/20 flex items-center justify-center rotate-6">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-              Your second brain awaits.
+            <h2 className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter mb-8">
+              SECURE_YOUR_INTEL.
             </h2>
-            <p className="text-gray-500 text-lg mb-10 max-w-md mx-auto">
-              Join for free and never lose a link, thought, or task again.
+            <p className="text-muted-foreground text-sm font-black uppercase tracking-[0.4em] mb-12 max-w-md mx-auto leading-relaxed">
+              Initialize your local cluster today.
+              Join the unified memory grid.
             </p>
-            <Link 
-              href="/auth/register"
-              className="group inline-flex items-center gap-2 px-10 py-5 bg-white text-black rounded-full font-bold text-lg hover:shadow-[0_0_60px_rgba(255,255,255,0.1)] transition-all"
-            >
-              Get Started <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <MagneticEffect strength={0.3}>
+                <Link 
+                    href="/auth/signup"
+                    className="btn-industrial px-12 py-6 text-2xl group flex items-center justify-center gap-6 mx-auto w-fit"
+                >
+                    INITIALIZE_CLUSTER <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform" strokeWidth={4} />
+                </Link>
+            </MagneticEffect>
           </FadeUp>
         </section>
       </main>
 
-      {/* ─── Footer ─── */}
-      <footer className="relative z-10 border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-500" />
-            <span className="font-bold text-white/80">Memory</span>
+      {/* ─── Terminal Footer ─── */}
+      <footer className="border-t-2 border-border bg-card/30">
+        <div className="max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-primary border-2 border-foreground flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <span className="font-black uppercase italic tracking-tighter text-2xl">URM<span className="text-primary">.MEM</span></span>
           </div>
-          <p className="text-sm text-gray-700">Made with care. © 2026</p>
+          <div className="flex gap-12">
+            <div>
+                <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">OPERATIONAL_NODE</p>
+                <div className="text-[10px] font-black uppercase tracking-widest">ABYSSAL_WEST_US_01</div>
+            </div>
+            <div>
+                <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">ENCRYPTION_LAYER</p>
+                <div className="text-[10px] font-black uppercase tracking-widest">AES_256_GCM</div>
+            </div>
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">MADE_IN_THE_ABYSS © 2026</p>
         </div>
       </footer>
     </div>

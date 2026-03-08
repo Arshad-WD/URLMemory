@@ -14,7 +14,7 @@ export async function PATCH(
             return new NextResponse('Unauthorized', { status: 401 })
         }
 
-        const { task, isDone } = await req.json()
+        const { task, isDone, priority, tagIds } = await req.json()
         const todoId = params.id
 
         const todo = await prisma.todo.findUnique({
@@ -49,7 +49,14 @@ export async function PATCH(
             data: {
                 task,
                 isDone,
+                priority,
+                tags: tagIds ? {
+                    set: tagIds.map((id: string) => ({ id }))
+                } : undefined,
             },
+            include: {
+                tags: true
+            }
         })
 
         return NextResponse.json(updatedTodo)

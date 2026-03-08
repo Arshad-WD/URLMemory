@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, Sparkles } from 'lucide-react'
+import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, ChevronRight, Activity } from 'lucide-react'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -29,85 +29,79 @@ export default function Signup() {
       const data = await res.json()
       
       if (!res.ok) {
-        setError(data.error || 'Signup failed')
+        setError(data.error || 'REGISTRATION_FAILED: SYSTEM_REJECTION')
         return
       }
       
       setSuccess(true)
       setTimeout(() => router.push('/auth/login'), 1500)
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setError('SYSTEM_ERROR: UNABLE_TO_INITIALIZE_UNIT')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 flex items-center justify-center p-4 transition-colors">
-      {/* Decorative elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-violet-400/20 to-purple-400/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Texture */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--color-foreground) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-lg z-10"
       >
-        {/* Logo & Title */}
-        <div className="text-center mb-8">
-          <motion.div 
-            initial={{ scale: 0.5, rotate: 10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="w-16 h-16 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-purple-500/25 -rotate-3"
-          >
-            <Sparkles className="w-8 h-8 text-white" />
-          </motion.div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create account</h1>
-          <p className="text-gray-500 dark:text-gray-400">Start building your memory library</p>
+        {/* Terminal Header */}
+        <div className="bg-card border-2 border-border border-b-0 p-8 flex items-center justify-between shadow-[8px_8px_0px_0px_var(--color-border)]">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-border)]">
+              <ShieldCheck className="text-primary-foreground w-7 h-7" strokeWidth={3} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter">REGISTRATION</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mt-1">UNIT_INITIALIZATION_PROTOCOL</p>
+            </div>
+          </div>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-slate-700 shadow-2xl shadow-gray-200/50 dark:shadow-black/20 p-8">
+        <div className="bg-card border-2 border-border p-10 shadow-[12px_12px_0px_0px_var(--color-border)] relative">
           {success ? (
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-center py-8"
+              className="text-center py-12"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/25">
-                <CheckCircle className="w-10 h-10 text-white" />
+              <div className="w-24 h-24 bg-primary flex items-center justify-center mx-auto mb-8 border-4 border-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+                <CheckCircle className="w-12 h-12 text-primary-foreground" strokeWidth={3} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">You're in!</h3>
-              <p className="text-gray-500 dark:text-gray-400">Redirecting to login...</p>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter text-foreground mb-4">UNIT_SYNCHRONIZED</h3>
+              <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.3em] animate-pulse">REDIRECTING_TO_AUTH_PORTAL...</p>
             </motion.div>
           ) : (
             <>
               {error && (
                 <motion.div 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-2xl flex items-center gap-3"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-4 bg-red-500/10 border-l-4 border-red-500 flex items-center gap-4"
                 >
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                  <p className="text-[11px] font-black uppercase tracking-tighter text-red-500">{error}</p>
                 </motion.div>
               )}
               
-              <form className="space-y-5" onSubmit={handleSignup}>
+              <form className="space-y-8" onSubmit={handleSignup}>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">COMMAND_EMAIL</label>
+                  <div className="relative group">
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <input
                       type="email"
                       required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-slate-900/50 border-none ring-1 ring-gray-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
-                      placeholder="name@example.com"
+                      className="input-industrial w-full pl-14 py-4 uppercase italic tracking-tighter"
+                      placeholder="name@system.terminal"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -115,17 +109,15 @@ export default function Signup() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">SET_SECURITY_KEY</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <input
                       type="password"
                       required
                       minLength={6}
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-slate-900/50 border-none ring-1 ring-gray-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
-                      placeholder="Min 6 characters"
+                      className="input-industrial w-full pl-14 py-4 uppercase italic tracking-tighter"
+                      placeholder="MIN_6_CHRS"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -135,27 +127,33 @@ export default function Signup() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-lg font-bold text-white bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 hover:from-violet-600 hover:via-purple-600 hover:to-indigo-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-500/25"
+                  className="btn-industrial w-full py-5 text-lg"
                 >
-                  {loading ? 'Creating...' : (
-                    <>
-                      Create Account
-                      <ArrowRight className="w-5 h-5" />
-                    </>
+                  {loading ? 'INITIALIZING...' : (
+                    <span className="flex items-center justify-center gap-4">INITIALIZE_UNIT <ArrowRight className="w-6 h-6" strokeWidth={3} /></span>
                   )}
                 </button>
               </form>
             </>
           )}
 
-          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-700 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                Sign in
+          <div className="mt-12 pt-10 border-t-2 border-border text-center">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+              ALREADY_IDENTIFIED?{' '}
+              <Link href="/auth/login" className="text-primary hover:italic transition-all inline-flex items-center gap-1">
+                ACCESS_PORTAL <ChevronRight className="w-3 h-3" />
               </Link>
             </p>
           </div>
+        </div>
+
+        {/* System Info Footer */}
+        <div className="mt-8 flex justify-between px-2 opacity-30">
+            <div className="flex gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.3em]">IP: 192.168.1.XXX</span>
+                <span className="text-[8px] font-black uppercase tracking-[0.3em]">NODE: ABYSSAL_CORE_7</span>
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-[0.3em]">VERSION: 2.4.0_STABLE</span>
         </div>
       </motion.div>
     </div>

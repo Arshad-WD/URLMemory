@@ -93,6 +93,7 @@ model Tag {
   userId    String
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookmarks Bookmark[]
+  todos     Todo[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -160,15 +161,23 @@ model Todo {
   id        String   @id @default(cuid())
   task      String
   isDone    Boolean  @default(false)
+  priority  TodoPriority @default(MEDIUM)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   roomId    String?
   room      Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  tags      Tag[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([roomId])
+}
+
+enum TodoPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 model Room {

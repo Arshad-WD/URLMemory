@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         }
 
         const userId = session.user.id
-        const { task, roomId } = await req.json()
+        const { task, roomId, priority, tagIds } = await req.json()
 
         if (!task) {
             return new NextResponse('Task is required', { status: 400 })
@@ -22,7 +22,14 @@ export async function POST(req: Request) {
                 task,
                 userId: userId,
                 roomId: roomId || null,
+                priority: priority || 'MEDIUM',
+                tags: tagIds && tagIds.length > 0 ? {
+                    connect: tagIds.map((id: string) => ({ id }))
+                } : undefined,
             },
+            include: {
+                tags: true
+            }
         })
 
         return NextResponse.json(todo)
@@ -70,7 +77,8 @@ export async function GET(req: Request) {
                         name: true,
                         image: true
                     }
-                }
+                },
+                tags: true
             }
         })
 

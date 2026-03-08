@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import GSAPVisuals from "@/components/GSAPVisuals";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -20,8 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased overflow-x-hidden`}>
         <Providers>
+          <GSAPVisuals />
           {children}
         </Providers>
       </body>

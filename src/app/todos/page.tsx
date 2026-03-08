@@ -1,24 +1,38 @@
-
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, CheckCircle2, Circle, X, CheckSquare, Search, Calendar, Tag } from 'lucide-react'
+import { 
+  Plus, Trash2, CheckCircle2, Circle, X, CheckSquare, 
+  Search, Calendar, Tag, AlertCircle, Clock, Filter, Sparkles, ChevronDown
+} from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import DesktopSidebar from '@/components/DesktopSidebar'
+import MagneticEffect from '@/components/MagneticEffect'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface Todo {
   id: string
   task: string
   isDone: boolean
+  priority: 'LOW' | 'MEDIUM' | 'HIGH'
+  roomId: string | null
   createdAt: string
+  tags: { id: string, name: string }[]
 }
 
+type FilterStatus = 'ALL' | 'ACTIVE' | 'COMPLETED' | 'HIGH_PRIORITY'
+
 export default function TodosPage() {
+  const { theme } = useTheme()
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [newTask, setNewTask] = useState('')
+  const [newPriority, setNewPriority] = useState<Todo['priority']>('MEDIUM')
   const [searchQuery, setSearchQuery] = useState('')
+  const [filter, setFilter] = useState<FilterStatus>('ALL')
+  const [showPriorityMenu, setShowPriorityMenu] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -41,228 +55,282 @@ export default function TodosPage() {
 
   const handleCreate = async (e?: React.FormEvent) => {
     e?.preventDefault()
-    if (!newTask.trim()) return
+    if (!newTask.trim() || isSubmitting) return
 
+    setIsSubmitting(true)
     try {
       const res = await fetch('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: newTask }),
+        body: JSON.stringify({ 
+          task: newTask,
+          priority: newPriority
+        }),
       })
 
       if (res.ok) {
         const newTodo = await res.json()
         setTodos([newTodo, ...todos])
         setNewTask('')
+        setNewPriority('MEDIUM')
       }
     } catch (error) {
       console.error('Failed to create todo', error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleToggle = async (id: string, currentStatus: boolean) => {
-    // Optimistic update
     setTodos(todos.map(t => t.id === id ? { ...t, isDone: !currentStatus } : t))
-
     try {
       const res = await fetch(`/api/todos/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isDone: !currentStatus }),
       })
-
-      if (!res.ok) {
-        // Revert on failure
-        setTodos(todos.map(t => t.id === id ? { ...t, isDone: currentStatus } : t))
-      }
+      if (!res.ok) setTodos(todos.map(t => t.id === id ? { ...t, isDone: currentStatus } : t))
     } catch (error) {
-      console.error('Failed to update todo', error)
       setTodos(todos.map(t => t.id === id ? { ...t, isDone: currentStatus } : t))
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this task?')) return
-
     try {
       const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        setTodos(todos.filter(t => t.id !== id))
-      }
+      if (res.ok) setTodos(todos.filter(t => t.id !== id))
     } catch (error) {
       console.error('Failed to delete todo', error)
     }
   }
 
-  const filteredTodos = todos.filter(t => 
-    t.task.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const handleClearCompleted = async () => {
+    const completed = todos.filter(t => t.isDone)
+    if (completed.length === 0) return
+    if (!confirm(`Clear ${completed.length} completed tasks?`)) return
+
+    // Note: ideally this should be a batch API call, but for simplicity we'll delete each or just refresh after
+    for (const todo of completed) {
+      await fetch(`/api/todos/${todo.id}`, { method: 'DELETE' })
+    }
+    setTodos(todos.filter(t => !t.isDone))
+  }
+
+  const filteredTodos = useMemo(() => {
+    return todos
+      .filter(t => t.task.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter(t => {
+        if (filter === 'ACTIVE') return !t.isDone
+        if (filter === 'COMPLETED') return t.isDone
+        if (filter === 'HIGH_PRIORITY') return t.priority === 'HIGH'
+        return true
+      })
+  }, [todos, searchQuery, filter])
 
   const completedCount = todos.filter(t => t.isDone).length
   const progress = todos.length > 0 ? (completedCount / todos.length) * 100 : 0
 
+  const priorityColors = {
+    LOW: 'priority-low',
+    MEDIUM: 'priority-medium',
+    HIGH: 'priority-high'
+  }
+
   return (
-    <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 pb-24 selection:bg-indigo-100 dark:selection:bg-indigo-900/40">
+    <div className="min-h-screen bg-background">
       <div className="flex">
         <DesktopSidebar 
           onAction={() => inputRef.current?.focus()} 
           actionLabel="Add Task"
         />
         <div className="flex-1 lg:ml-72 min-h-screen">
-          <header className="sticky top-0 z-40 bg-white/60 dark:bg-slate-950/60 backdrop-blur-2xl border-b border-gray-100 dark:border-slate-900/50">
-            <div className="max-w-3xl mx-auto px-6 h-20 flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                  Task Desk
-                </h1>
-                <p className="text-xs text-gray-500 dark:text-slate-400 font-bold pt-1 uppercase tracking-wider">
-                  {completedCount}/{todos.length} COMPLETED
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                 <div className="hidden sm:flex items-center gap-2 bg-gray-100 dark:bg-slate-900/80 px-3 py-1.5 rounded-xl border border-transparent focus-within:border-indigo-500/20 transition-all">
-                  <Search className="w-4 h-4 text-gray-400" />
-                  <input 
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-transparent border-none outline-none text-xs w-32 text-gray-600 dark:text-slate-300"
-                  />
+          <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b-2 border-border pb-6 pt-10">
+            <div className="max-w-4xl mx-auto px-6">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-border)]">
+                    <CheckSquare className="text-primary-foreground w-6 h-6" strokeWidth={3} />
+                  </div>
+                  <h1 className="text-3xl font-black uppercase italic tracking-tighter">Tasks<span className="text-primary">.LOG</span></h1>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-2">PROGRESS_INDEX</span>
+                  <div className="w-32 h-4 bg-muted border border-border relative overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      className="h-full bg-primary"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-foreground mix-blend-difference">
+                      {Math.round(progress)}%
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Progress bar */}
-            <div className="absolute bottom-0 left-0 h-0.5 bg-indigo-500/20 w-full overflow-hidden">
-                <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                />
+
+              <div className="bg-card border-2 border-border p-4 shadow-[6px_6px_0px_0px_var(--color-border)]">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+                    {(['ALL', 'ACTIVE', 'COMPLETED', 'HIGH_PRIORITY'] as FilterStatus[]).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setFilter(f)}
+                        className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest border-2 transition-all whitespace-nowrap ${filter === f ? 'bg-primary border-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-foreground'}`}
+                      >
+                        {f.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+
+                  {completedCount > 0 && (
+                    <button 
+                        onClick={handleClearCompleted}
+                        className="text-[10px] font-black text-muted-foreground hover:text-rose-500 uppercase tracking-widest flex items-center gap-2 transition-all"
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        CLEAR_FINISHED
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </header>
 
-          <main className="max-w-3xl mx-auto px-6 py-10">
+          <main className="max-w-4xl mx-auto px-6 py-12">
             {/* Input Form */}
             <form onSubmit={handleCreate} className="mb-12">
-              <div className="relative group">
+              <div className="bg-card border-2 border-border p-2 flex flex-col sm:flex-row items-center gap-2 shadow-[4px_4px_0px_0px_var(--color-border)]">
                 <input
                   ref={inputRef}
                   type="text"
-                  placeholder="What needs to be done?"
+                  placeholder="CAPTURE_NEW_TASK..."
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
-                  className="w-full pl-14 pr-14 py-4.5 bg-white dark:bg-slate-900 rounded-[28px] shadow-2xl shadow-indigo-500/5 border border-gray-100 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 text-gray-900 dark:text-slate-100 placeholder:text-gray-300 dark:placeholder:text-slate-700 text-lg transition-all"
+                  className="input-industrial border-none flex-1 py-4 text-base"
                 />
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-indigo-500 transition-colors">
-                  <Plus className="w-6 h-6" />
-                </div>
-                <AnimatePresence>
-                  {newTask && (
-                    <motion.button 
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      type="submit"
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 p-2.5 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-90"
+                
+                <div className="flex items-center gap-2 w-full sm:w-auto p-2 sm:p-0">
+                  <div className="relative flex-1 sm:flex-none">
+                    <button
+                      type="button"
+                      onClick={() => setShowPriorityMenu(!showPriorityMenu)}
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-2 border-2 text-[10px] font-black uppercase tracking-widest transition-all ${priorityColors[newPriority]}`}
                     >
-                      <Plus className="w-5 h-5" />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
+                      {newPriority}
+                      <ChevronDown className={`w-3 h-3 transition-transform ${showPriorityMenu ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    <AnimatePresence>
+                      {showPriorityMenu && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute right-0 top-full mt-2 w-full sm:w-32 bg-card border-2 border-border p-1 z-50 shadow-[6px_6px_0px_0px_var(--color-border)]"
+                        >
+                          {(['LOW', 'MEDIUM', 'HIGH'] as const).map((p) => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => {
+                                setNewPriority(p)
+                                setShowPriorityMenu(false)
+                              }}
+                              className={`w-full text-left px-3 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-muted transition-all ${
+                                newPriority === p ? 'text-primary' : 'text-muted-foreground'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <MagneticEffect strength={0.2}>
+                    <button
+                      type="submit"
+                      disabled={!newTask.trim() || isSubmitting}
+                      className="btn-industrial py-2 px-6 disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'SYNC...' : 'DEPLOY'}
+                    </button>
+                  </MagneticEffect>
+                </div>
               </div>
             </form>
 
-            {/* Todo List */}
-            <div className="space-y-3">
-              <AnimatePresence mode="popLayout" initial={false}>
-                {filteredTodos.map((todo) => (
+            <div className="space-y-4">
+              <AnimatePresence mode="popLayout">
+                {filteredTodos.map((todo, index) => (
                   <motion.div
-                    layout
                     key={todo.id}
-                    initial={{ opacity: 0, y: 10 }}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className={`group relative flex items-center gap-4 p-5 rounded-[24px] border transition-all cursor-pointer overflow-hidden ${
-                        todo.isDone 
-                            ? 'bg-gray-50/50 dark:bg-slate-900/20 border-transparent opacity-60' 
-                            : 'bg-white dark:bg-slate-900/40 border-gray-100 dark:border-slate-900 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 backdrop-blur-sm'
-                    }`}
-                    onClick={() => handleToggle(todo.id, todo.isDone)}
+                    transition={{ delay: index * 0.05 }}
+                    className="bento-card group flex items-center gap-6 p-6"
                   >
-                    <button
-                      className={`flex-shrink-0 transition-all duration-500 ${
-                        todo.isDone ? 'text-indigo-500' : 'text-gray-200 dark:text-slate-800 hover:text-indigo-400'
+                    <button 
+                      onClick={() => handleToggle(todo.id, todo.isDone)}
+                      className={`flex-shrink-0 w-8 h-8 border-2 flex items-center justify-center transition-all ${
+                        todo.isDone 
+                          ? 'bg-primary border-primary text-primary-foreground' 
+                          : 'border-border text-muted-foreground hover:border-foreground'
                       }`}
                     >
-                      {todo.isDone ? (
-                        <CheckCircle2 className="w-7 h-7 fill-indigo-50 dark:fill-indigo-950" />
-                      ) : (
-                        <Circle className="w-7 h-7 stroke-[1.5px]" />
-                      )}
+                      {todo.isDone && <CheckSquare className="w-5 h-5" strokeWidth={4} />}
                     </button>
-                    
+
                     <div className="flex-1 min-w-0">
-                        <span className={`block text-base font-semibold truncate transition-all duration-500 ${
-                            todo.isDone 
-                                ? 'text-gray-400 line-through' 
-                                : 'text-gray-700 dark:text-slate-200'
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 border transition-all ${
+                          todo.priority === 'HIGH' ? 'bg-red-500/10 border-red-500/30 text-red-500' :
+                          todo.priority === 'MEDIUM' ? 'bg-orange-500/10 border-orange-500/30 text-orange-500' :
+                          'bg-muted-foreground/10 border-muted-foreground/30 text-muted-foreground'
                         }`}>
-                        {todo.task}
+                          {todo.priority}
                         </span>
-                        {!todo.isDone && (
-                            <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                    <Calendar className="w-3 h-3" />
-                                    {new Date(todo.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                </span>
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Tag className="w-3 h-3" />
-                                    Active
-                                </span>
-                            </div>
-                        )}
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                          ID_{todo.id.slice(-6).toUpperCase()}
+                        </span>
+                      </div>
+                      <h3 className={`text-lg font-black tracking-tight transition-all truncate ${
+                        todo.isDone ? 'text-muted-foreground line-through' : 'text-foreground'
+                      }`}>
+                        {todo.task}
+                      </h3>
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 flex items-center gap-2">
+                        <Clock className="w-3 h-3" /> INITIALIZED_{new Date(todo.createdAt).toLocaleTimeString()}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDelete(todo.id)
-                          }}
-                          className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all"
+                    <div className="flex items-center gap-2 pointer-events-auto">
+                      <MagneticEffect strength={0.2}>
+                        <button 
+                          onClick={() => handleDelete(todo.id)}
+                          className="p-3 border-2 border-transparent hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
                         >
-                          <Trash2 className="w-5 h-5 flex-shrink-0" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
+                      </MagneticEffect>
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
 
               {!loading && filteredTodos.length === 0 && (
-                <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }} 
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-24"
-                >
-                    <div className="w-24 h-24 bg-gray-100 dark:bg-slate-900/40 rounded-[40px] flex items-center justify-center mx-auto mb-8 rotate-12 group-hover:rotate-0 transition-transform">
-                        <CheckSquare className="w-12 h-12 text-gray-300 dark:text-slate-700" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                        {searchQuery ? 'No tasks found' : 'All clear for now'}
-                    </h3>
-                    <p className="text-gray-500 dark:text-slate-400 mt-2 font-medium max-w-xs mx-auto">
-                        {searchQuery ? 'Try a different search term.' : 'You\'ve mastered your productivity. Why not take a break?'}
-                    </p>
-                </motion.div>
-                )}
+                <div className="text-center py-20 border-2 border-dashed border-border">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">NO_RECORDS_FOUND</p>
+                </div>
+              )}
             </div>
           </main>
         </div>
       </div>
-
       <BottomNav onAddClick={() => inputRef.current?.focus()} />
     </div>
   )

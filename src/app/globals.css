@@ -1,114 +1,159 @@
-@config "../../tailwind.config.ts";
 @import "tailwindcss";
 
-:root {
-  --foreground: 26 26 26;
-  --background: 250 250 250;
-  --card: 255 255 255;
-  --card-foreground: 26 26 26;
-  --primary: 99 102 241;
-  --primary-foreground: 255 255 255;
-  --muted: 241 245 249;
-  --muted-foreground: 100 116 139;
-  --border: 226 232 240;
-  --ring: 99 102 241;
+@theme {
+  /* Abyssal Ember - Industrial High-Contrast Palette */
+  --color-background: oklch(0.98 0 0);
+  /* Near White Concrete */
+  --color-foreground: oklch(0.15 0.02 240);
+  /* Industrial Charcoal */
+
+  --color-card: oklch(0.96 0.01 240);
+  --color-card-foreground: oklch(0.15 0.02 240);
+
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.15 0.02 240);
+
+  --color-primary: oklch(0.65 0.25 45);
+  /* High-vis Orange */
+  --color-primary-foreground: oklch(1 0 0);
+
+  --color-secondary: oklch(0.92 0.02 240);
+  --color-secondary-foreground: oklch(0.15 0.02 240);
+
+  --color-muted: oklch(0.94 0.01 240);
+  --color-muted-foreground: oklch(0.45 0.02 240);
+
+  --color-accent: oklch(0.85 0.2 110);
+  /* Acid Lime (Light) */
+  --color-accent-foreground: oklch(0.15 0.02 240);
+
+  --color-destructive: oklch(0.55 0.25 25);
+  --color-destructive-foreground: oklch(1 1 1);
+
+  --color-border: oklch(0.15 0.02 240 / 0.1);
+  --color-input: oklch(0.15 0.02 240 / 0.05);
+  --color-ring: oklch(0.65 0.25 45);
+
+  --radius-lg: 0.5rem;
+  /* Sharper industrial radii */
+  --radius-md: 0.25rem;
+  --radius-sm: 0.125rem;
+
+  --animate-technical-blink: technical-blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes technical-blink {
+    50% {
+      opacity: 0.4;
+    }
+  }
 }
 
 .dark {
-  --foreground: 248 250 252;
-  --background: 15 23 42;
-  --card: 30 41 59;
-  --card-foreground: 248 250 252;
-  --primary: 129 140 248;
-  --primary-foreground: 255 255 255;
-  --muted: 51 65 85;
-  --muted-foreground: 148 163 184;
-  --border: 51 65 85;
-  --ring: 129 140 248;
+  --color-background: oklch(0.12 0.01 240);
+  /* Deep Obsidian */
+  --color-foreground: oklch(0.95 0.01 240);
+
+  --color-card: oklch(0.15 0.02 240);
+  --color-card-foreground: oklch(0.95 0.01 240);
+
+  --color-primary: oklch(0.88 0.25 110);
+  /* Acid Lime (Primary in Dark) */
+  --color-primary-foreground: oklch(0.1 0.01 240);
+
+  --color-accent: oklch(0.65 0.25 45);
+  /* High-vis Orange (Accent in Dark) */
+  --color-accent-foreground: oklch(0.1 0.01 240);
+
+  --color-border: oklch(0.95 0.01 240 / 0.1);
+  --color-muted: oklch(0.18 0.02 240);
+  --color-muted-foreground: oklch(0.6 0.01 240);
 }
 
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+@layer base {
+  * {
+    border-color: var(--color-border);
+    outline-color: var(--color-ring);
+    letter-spacing: -0.02em;
+    /* Tight technical tracking */
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply uppercase font-black tracking-tighter;
+  }
 }
 
-body {
-  color: rgb(var(--foreground));
-  background: rgb(var(--background));
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Glass card effect */
 @layer components {
-  .glass-card {
-    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-xl;
+
+  /* Industrial Bento Grid Logic */
+  .bento-card {
+    @apply bg-card border-2 border-border p-6 relative overflow-hidden transition-all duration-300;
+    box-shadow: 4px 4px 0px 0px var(--color-border);
   }
 
-  .glass-input {
-    @apply bg-gray-50/80 dark:bg-slate-900/50 backdrop-blur-sm border-none ring-1 ring-gray-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400;
+  .bento-card:hover {
+    @apply border-primary translate-x-[-2px] translate-y-[-2px];
+    box-shadow: 6px 6px 0px 0px var(--color-primary);
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 bg-clip-text text-transparent;
+  .status-indicator {
+    @apply inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm;
   }
 
-  .btn-primary {
-    @apply bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-semibold shadow-lg shadow-indigo-500/25 dark:shadow-indigo-500/15 transition-all active:scale-[0.98];
+  .btn-industrial {
+    @apply px-4 py-2 border-2 border-foreground bg-foreground text-background font-black uppercase tracking-tighter text-sm transition-all hover:bg-transparent hover:text-foreground active:scale-95 disabled:opacity-50;
+  }
+
+  .input-industrial {
+    @apply w-full bg-input border-2 border-border px-4 py-2 outline-none focus:border-primary transition-all text-sm font-bold;
+  }
+
+  .technical-label {
+    @apply text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] mb-1 block;
+  }
+
+  /* Theme-aware scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border: 3px solid var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted-foreground);
   }
 }
 
-/* Subtle noise texture overlay */
+/* Technical Grid Background */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.02;
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.2;
   pointer-events: none;
-  z-index: 9999;
+  z-index: -10;
 }
 
 .dark body::before {
-  opacity: 0.03;
-}
-
-/* Focus states */
-input:focus,
-button:focus-visible {
-  @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
-}
-
-/* Gradient backgrounds */
-.bg-gradient-light {
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%);
-}
-
-.dark .bg-gradient-light {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgb(var(--muted));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--muted-foreground) / 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--muted-foreground) / 0.5);
-}
-
-/* Selection styling */
-::selection {
-  background: rgb(var(--primary) / 0.2);
-  color: rgb(var(--foreground));
+  opacity: 0.1;
 }

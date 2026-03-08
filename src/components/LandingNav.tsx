@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Terminal, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 
@@ -13,37 +13,40 @@ export default function LandingNav() {
     <motion.nav 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 left-0 right-0 z-50 px-4 py-4 md:px-8"
+      className="fixed top-0 left-0 right-0 z-50 px-6 py-6"
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between p-4 bg-white/5 dark:bg-slate-900/5 backdrop-blur-xl border border-white/10 dark:border-slate-800/10 rounded-2xl md:rounded-full">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform">
-            <Sparkles className="w-5 h-5 text-white" />
+      <div className="max-w-7xl mx-auto flex items-center justify-between p-4 bg-card border-2 border-border shadow-[4px_4px_0px_0px_var(--color-border)]">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 bg-primary border-2 border-foreground flex items-center justify-center shadow-[4px_4px_0px_0px_var(--color-border)] transition-transform group-hover:rotate-6">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg text-slate-800 dark:text-white tracking-tight">Memory</span>
+          <div className="hidden sm:block">
+            <span className="font-black text-xl text-foreground uppercase italic tracking-tighter">Vault<span className="text-primary">.OS</span></span>
+            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none">ABYSSAL_CORE</p>
+          </div>
         </Link>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {session ? (
             <Link 
               href="/dashboard"
-              className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg md:rounded-full font-semibold text-sm hover:opacity-90 transition-opacity"
+              className="btn-industrial px-6 py-2 text-[10px]"
             >
-              Go to Dashboard
+              GO_TO_TERMINAL
             </Link>
           ) : (
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-4">
                 <Link 
                   href="/auth/login"
-                  className="px-5 py-2.5 text-slate-600 dark:text-slate-300 font-medium text-sm hover:text-slate-900 dark:hover:text-white transition-colors hidden md:block"
+                  className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hidden md:block"
                 >
-                  Sign In
+                  ESTABLISH_UPLINK
                 </Link>
                 <Link 
                   href="/auth/signup"
-                  className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg md:rounded-full font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20"
+                  className="btn-industrial px-6 py-2 text-[10px]"
                 >
-                  Get Started
+                  INITIALIZE_UNIT
                 </Link>
              </div>
           )}
