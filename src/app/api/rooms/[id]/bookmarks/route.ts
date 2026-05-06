@@ -1,11 +1,8 @@
-
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import prisma from '@/lib/db'
-import { fetchMetadata } from '@/lib/metadata' // Assuming this exists or I should replicate
-
-// Mock fetchMetadata if it doesn't exist exported, but 'api/bookmarks/route.ts' imported it from '@/lib/metadata'.
-// I'll assume it works.
+import { fetchMetadata } from '@/lib/metadata'
+import { enrichBookmark } from '@/lib/ai'
 
 export async function GET(
     req: Request,
@@ -55,19 +52,20 @@ export async function POST(
         })
         if (!membership) return new NextResponse('Unauthorized', { status: 403 })
 
-        // Fetch metadata
-        // I need to import fetchMetadata. 
-        // If I can't import it easily (if it's not exported or something), I'll just use a basic implementation or try to import.
-        // The previous view_file showed: import { fetchMetadata } from '@/lib/metadata'
-
-        // I will try to use it. If it fails, I'll need to fix it.
-        // But since I can't compile here, I'll assume it works.
-        // Wait, I should probably check if it is exported.
-
-        // For now, let's just dynamic import or assume it's there. 
-
-        const { fetchMetadata } = await import('@/lib/metadata')
         const metadata = await fetchMetadata(url)
+        
+        let aiSummary = null
+        let aiTags: string[] = []
+        let aiInsight = null
+
+        if (metadata.textContent) {
+            const enrichment = await enrichBookmark(url, metadata.title, metadata.textContent)
+            if (enrichment) {
+                aiSummary = enrichment.summary
+                aiTags = enrichment.tags
+                aiInsight = enrichment.insight
+            }
+        }
 
         const bookmark = await prisma.roomBookmark.create({
             data: {
@@ -75,8 +73,11 @@ export async function POST(
                 note,
                 title: metadata.title,
                 roomId,
-                addedById: session.user.id
-            }
+                addedById: session.user.id,
+                aiSummary,
+                aiTags,
+                aiInsight
+            } as any
         })
 
         return NextResponse.json(bookmark)

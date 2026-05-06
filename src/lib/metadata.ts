@@ -5,6 +5,7 @@ export interface Metadata {
     title: string | null
     favicon: string | null
     domain: string
+    textContent?: string
 }
 
 export async function fetchMetadata(targetUrl: string): Promise<Metadata> {
@@ -21,11 +22,16 @@ export async function fetchMetadata(targetUrl: string): Promise<Metadata> {
 
         const $ = cheerio.load(response.data)
 
+        // Remove script and style tags to get clean text
+        $('script, style, nav, footer, header').remove()
+        const textContent = $('body').text().replace(/\s+/g, ' ').trim()
+
         const title =
             $('title').text() ||
             $('meta[property="og:title"]').attr('content') ||
             $('meta[name="twitter:title"]').attr('content') ||
             null
+
 
         let favicon =
             $('link[rel="icon"]').attr('href') ||
@@ -42,14 +48,17 @@ export async function fetchMetadata(targetUrl: string): Promise<Metadata> {
         return {
             title,
             favicon,
-            domain
+            domain,
+            textContent
         }
     } catch (error) {
         console.error(`Metadata fetch failed for ${targetUrl}:`, error)
         return {
             title: null,
             favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
-            domain
+            domain,
+            textContent: ""
         }
     }
 }
+

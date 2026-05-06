@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { fetchMetadata } from '@/lib/metadata'
+import { enrichBookmark } from '@/lib/ai'
+
 
 export async function GET(req: Request) {
     const session = await getSession()
@@ -53,6 +55,19 @@ export async function POST(req: Request) {
         if (!url) return NextResponse.json({ error: 'URL is required' }, { status: 400 })
 
         const metadata = await fetchMetadata(url)
+        
+        let aiSummary = null
+        let aiTags: string[] = []
+        let aiInsight = null
+        
+        if (metadata.textContent) {
+            const enrichment = await enrichBookmark(url, metadata.title, metadata.textContent)
+            if (enrichment) {
+                aiSummary = enrichment.summary
+                aiTags = enrichment.tags
+                aiInsight = enrichment.insight
+            }
+        }
 
         const bookmark = await prisma.bookmark.create({
             data: {
@@ -62,6 +77,9 @@ export async function POST(req: Request) {
                 title: metadata.title,
                 faviconUrl: metadata.favicon,
                 userId: session.userId,
+                aiSummary,
+                aiTags,
+                aiInsight,
                 ...(reminderAt && {
                     reminder: {
                         create: {
@@ -69,9 +87,10 @@ export async function POST(req: Request) {
                         }
                     }
                 })
-            },
+            } as any,
             include: { reminder: true }
         })
+
 
         return NextResponse.json(bookmark, { status: 201 })
     } catch (error) {

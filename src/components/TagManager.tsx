@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Trash2, Tag as TagIcon, Check } from 'lucide-react'
+import { X, Plus, Trash2, Tag as TagIcon, Check, Sparkles, Hash } from 'lucide-react'
 
 interface Tag {
     id: string
@@ -55,55 +55,92 @@ export default function TagManager({ isOpen, onClose, tags, onRefresh }: TagMana
         <AnimatePresence>
             {isOpen && (
                 <>
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[80]" />
-                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-800 p-8 z-[81]">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                                <TagIcon className="w-6 h-6 text-indigo-500" /> Manage Tags
-                            </h3>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                                <X className="w-5 h-5 text-gray-400" />
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-background/80 backdrop-blur-xl z-[120]" />
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 30 }} 
+                        animate={{ opacity: 1, scale: 1, y: 0 }} 
+                        exit={{ opacity: 0, scale: 0.9, y: 30 }} 
+                        className="fixed left-4 right-4 bottom-8 lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-xl bg-card/80 backdrop-blur-3xl rounded-[3rem] shadow-2xl border border-white/10 p-10 lg:p-12 z-[121]"
+                    >
+                        <div className="flex items-center justify-between mb-12">
+                            <div className="flex items-center gap-5">
+                                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/20 animate-glow">
+                                    <Hash className="w-8 h-8 text-primary-foreground" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black uppercase italic tracking-tighter">Taxonomy Core</h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em] mt-1">Neural Category Index</p>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors">
+                                <X className="w-6 h-6 text-muted-foreground" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleAdd} className="space-y-6 mb-8">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tag Name</label>
-                                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Work, Jobs, Read Later"
-                                    className="w-full px-4 py-3.5 rounded-xl bg-gray-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        <form onSubmit={handleAdd} className="space-y-10 mb-12">
+                            <div className="space-y-4">
+                                <label className="block text-[10px] font-black text-primary uppercase tracking-[0.4em] ml-2">Identify New Category</label>
+                                <div className="relative group">
+                                    <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/40 group-focus-within:text-primary transition-colors" />
+                                    <input 
+                                        type="text" 
+                                        value={newName} 
+                                        onChange={(e) => setNewName(e.target.value)} 
+                                        placeholder="INPUT_TAG_IDENTIFIER..."
+                                        className="w-full pl-16 pr-6 py-5 rounded-3xl bg-white/5 border border-white/5 focus:border-primary/40 focus:bg-white/10 outline-none text-sm font-black uppercase italic tracking-tighter transition-all" 
+                                    />
+                                </div>
                             </div>
                             
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Color</label>
-                                <div className="flex flex-wrap gap-3">
+                            <div className="space-y-4">
+                                <label className="block text-[10px] font-black text-primary uppercase tracking-[0.4em] ml-2">Spectral Assignment</label>
+                                <div className="flex flex-wrap gap-4 p-4 bg-white/5 rounded-3xl border border-white/5">
                                     {COLORS.map(color => (
-                                        <button key={color} type="button" onClick={() => setSelectedColor(color)}
-                                            className="w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110" style={{ backgroundColor: color }}>
-                                            {selectedColor === color && <Check className="w-4 h-4 text-white" />}
+                                        <button 
+                                            key={color} 
+                                            type="button" 
+                                            onClick={() => setSelectedColor(color)}
+                                            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-125 hover:rotate-12 relative overflow-hidden" 
+                                            style={{ backgroundColor: color }}
+                                        >
+                                            {selectedColor === color && (
+                                                <div className="absolute inset-0 bg-white/20 flex items-center justify-center backdrop-blur-[2px]">
+                                                    <Check className="w-5 h-5 text-white" />
+                                                </div>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} disabled={isSubmitting || !newName}
-                                className="w-full py-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 disabled:opacity-50 transition-all">
-                                {isSubmitting ? 'Creating...' : 'Create Tag'}
-                            </motion.button>
+                            <button 
+                                disabled={isSubmitting || !newName}
+                                className="w-full py-5 bg-primary text-primary-foreground font-black rounded-3xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-[0.3em] text-xs italic disabled:opacity-50"
+                            >
+                                {isSubmitting ? 'Syncing Taxonomy...' : 'Commit New Category'}
+                            </button>
                         </form>
 
-                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2 no-scrollbar">
-                            {tags.length === 0 && <p className="text-center text-gray-500 py-4 italic text-sm">No tags yet</p>}
-                            {tags.map(tag => (
-                                <div key={tag.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color || '#6366f1' }} />
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">{tag.name}</span>
-                                    </div>
-                                    <button onClick={() => handleDelete(tag.id)} className="p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                        <div className="space-y-4 max-h-[350px] overflow-y-auto pr-4 no-scrollbar border-t border-white/5 pt-8">
+                            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mb-6">Existing Classifications</p>
+                            {tags.length === 0 && (
+                                <div className="text-center py-10 opacity-30 italic uppercase text-[10px] tracking-widest">
+                                    Zero Classifications Detected
                                 </div>
-                            ))}
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {tags.map(tag => (
+                                    <div key={tag.id} className="flex items-center justify-between p-5 bg-white/5 border border-white/5 rounded-3xl group hover:border-primary/20 transition-all">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: tag.color || '#6366f1', boxShadow: `0 0 15px ${tag.color || '#6366f1'}66` }} />
+                                            <span className="font-black uppercase italic tracking-tight text-sm">{tag.name}</span>
+                                        </div>
+                                        <button onClick={() => handleDelete(tag.id)} className="p-2.5 text-destructive rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </motion.div>
                 </>

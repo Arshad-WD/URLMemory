@@ -1,313 +1,255 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, Trash2, X, Save, FileText, ChevronRight, Hash, Clock, MoreVertical } from 'lucide-react'
+import { 
+    Plus, Search, FileText, Trash2, Save, X, 
+    Maximize2, Minimize2, Sparkles, Clock, Globe,
+    LayoutGrid, List, ChevronRight, Share2, MoreVertical,
+    Mic, MicOff
+} from 'lucide-react'
 import DesktopSidebar from '@/components/DesktopSidebar'
 import BottomNav from '@/components/BottomNav'
-import { useTheme } from '@/components/ThemeProvider'
-import MagneticEffect from '@/components/MagneticEffect'
 
 interface Note {
-  id: string
-  title: string | null
-  content: string
-  updatedAt: string
+    id: string
+    title: string | null
+    content: string
+    createdAt: string
+    updatedAt: string
 }
 
 export default function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isCreating, setIsCreating] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { theme } = useTheme()
-  
-  // Form states
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+    const [notes, setNotes] = useState<Note[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const [isCreating, setIsCreating] = useState(false)
+    const [newTitle, setNewTitle] = useState('')
+    const [newContent, setNewContent] = useState('')
+    const [selectedNote, setSelectedNote] = useState<Note | null>(null)
+    const [mounted, setMounted] = useState(false)
+    const [isRecording, setIsRecording] = useState(false)
+    const recognitionRef = useRef<any>(null)
 
-  useEffect(() => {
-    fetchNotes()
-  }, [])
-
-  const fetchNotes = async () => {
-    try {
-      const res = await fetch('/api/notes')
-      if (res.ok) {
-        const data = await res.json()
-        setNotes(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch notes', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCreate = async () => {
-    if (!content.trim() || isSubmitting) return
-
-    setIsSubmitting(true)
-
-    try {
-      const res = await fetch('/api/notes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content }),
-      })
-
-      if (res.ok) {
-        const newNote = await res.json()
-        setNotes([newNote, ...notes])
-        resetForm()
-      }
-    } catch (error) {
-      console.error('Failed to create note', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleUpdate = async (id: string) => {
-    if (!content.trim() || isSubmitting) return
-
-    setIsSubmitting(true)
-
-    try {
-      const res = await fetch(`/api/notes/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content }),
-      })
-
-      if (res.ok) {
-        const updatedNote = await res.json()
-        setNotes(notes.map(n => n.id === id ? updatedNote : n))
-        setEditingId(null)
-        resetForm()
-      }
-    } catch (error) {
-      console.error('Failed to update note', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('DELETE_CONFIRMATION_REQUIRED?')) return
-
-    try {
-      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        setNotes(notes.filter(n => n.id !== id))
-      }
-    } catch (error) {
-      console.error('Failed to delete note', error)
-    }
-  }
-
-  const startEditing = (note: Note) => {
-    setEditingId(note.id)
-    setTitle(note.title || '')
-    setContent(note.content)
-    setIsCreating(true)
-  }
-
-  const resetForm = () => {
-    setTitle('')
-    setContent('')
-    setIsCreating(false)
-    setEditingId(null)
-  }
-
-  const filteredNotes = notes.filter(note => 
-    (note.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     note.content.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
-
-  return (
-    <div className="min-h-screen bg-background pb-24 selection:bg-primary/10">
-      <div className="flex">
-        <DesktopSidebar 
-          onAction={() => {
-            resetForm()
-            setIsCreating(true)
-          }} 
-          actionLabel="New Note"
-        />
+    useEffect(() => {
+        setMounted(true)
+        fetchNotes()
         
-        <div className="flex-1 lg:ml-72 min-h-screen">
-          {/* Header */}
-          <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b-2 border-border pb-6 pt-10 px-6">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-6 items-center justify-between">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="w-10 h-10 bg-primary flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-border)]">
-                  <FileText className="text-primary-foreground w-6 h-6" strokeWidth={3} />
-                </div>
-                <h1 className="text-3xl font-black uppercase italic tracking-tighter">Cipher<span className="text-primary">.LOG</span></h1>
-              </div>
+        // Initialize Speech Recognition
+        if (typeof window !== 'undefined' && ('WebkitSpeechRecognition' in window || 'speechRecognition' in window)) {
+            const SpeechRecognition = (window as any).WebkitSpeechRecognition || (window as any).speechRecognition
+            recognitionRef.current = new SpeechRecognition()
+            recognitionRef.current.continuous = true
+            recognitionRef.current.interimResults = true
 
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <div className="flex-1 sm:flex-none flex items-center gap-2 bg-card border-2 border-border px-4 py-2 shadow-[4px_4px_0px_0px_var(--color-border)]">
-                  <Search className="w-4 h-4 text-muted-foreground" />
-                  <input 
-                    type="text"
-                    placeholder="SEARCH_INDEX..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="input-industrial border-none bg-transparent"
-                  />
-                </div>
-                <MagneticEffect strength={0.2}>
-                  <button
-                    onClick={() => {
-                        resetForm()
-                        setIsCreating(true)
-                    }}
-                    className="btn-industrial p-3"
-                  >
-                    <Plus className="w-6 h-6" strokeWidth={3} />
-                  </button>
-                </MagneticEffect>
-              </div>
+            recognitionRef.current.onresult = (event: any) => {
+                let interimTranscript = ''
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        setNewContent(prev => prev + event.results[i][0].transcript + ' ')
+                    } else {
+                        interimTranscript += event.results[i][0].transcript
+                    }
+                }
+            }
+
+            recognitionRef.current.onend = () => setIsRecording(false)
+        }
+    }, [])
+
+    const toggleRecording = () => {
+        if (isRecording) {
+            recognitionRef.current?.stop()
+        } else {
+            recognitionRef.current?.start()
+            setIsRecording(true)
+        }
+    }
+
+    const fetchNotes = async () => {
+        try {
+            const res = await fetch('/api/notes')
+            const data = await res.json()
+            setNotes(data)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!newContent) return
+        try {
+            const res = await fetch('/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: newTitle, content: newContent })
+            })
+            if (res.ok) {
+                setNewTitle('')
+                setNewContent('')
+                setIsCreating(false)
+                fetchNotes()
+            }
+        } catch (e) { console.error(e) }
+    }
+
+    const handleDelete = async (id: string) => {
+        const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' })
+        if (res.ok) fetchNotes()
+    }
+
+    const filteredNotes = notes.filter(n => 
+        n.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    if (!mounted) return null
+
+    return (
+        <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 pb-32 lg:pb-0">
+            
+            <div className="flex">
+                <DesktopSidebar onAction={() => setIsCreating(true)} actionLabel="New Cipher" />
+
+                <main className="flex-1 lg:ml-72 min-h-screen">
+                    <header className="sticky top-0 z-40 bg-background/60 backdrop-blur-3xl border-b border-white/5">
+                        <div className="px-6 lg:px-12 h-24 flex items-center justify-between gap-8">
+                            <div className="flex-1 max-w-2xl relative group">
+                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                <input 
+                                    type="text" 
+                                    placeholder="SEARCH_CIPHER_LOGS..." 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-16 pr-8 py-4 rounded-full bg-white/5 border border-transparent focus:border-primary/30 focus:bg-white/10 text-sm outline-none transition-all font-medium" 
+                                />
+                            </div>
+
+                            <div className="hidden md:flex items-center gap-4 bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                                <button onClick={() => setViewMode('grid')} className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary text-primary-foreground shadow-glow' : 'text-muted-foreground hover:text-foreground'}`}>
+                                    <LayoutGrid className="w-5 h-5" />
+                                </button>
+                                <button onClick={() => setViewMode('list')} className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary text-primary-foreground shadow-glow' : 'text-muted-foreground hover:text-foreground'}`}>
+                                    <List className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="px-6 lg:px-12 py-12">
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-48 gap-8">
+                                <div className="w-16 h-16 border-2 border-primary/20 border-t-primary rounded-full animate-spin shadow-glow" />
+                                <p className="text-[10px] font-black text-primary uppercase tracking-[0.8em] animate-pulse italic">Accessing Archives</p>
+                            </div>
+                        ) : filteredNotes.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-48 text-center">
+                                <div className="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mb-10 border border-white/10">
+                                    <FileText className="w-12 h-12 text-primary/30" />
+                                </div>
+                                <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-4">Archives Empty</h2>
+                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.4em]">Initialize first encrypted record</p>
+                            </div>
+                        ) : (
+                            <div className={`grid gap-8 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
+                                <AnimatePresence mode="popLayout">
+                                    {filteredNotes.map((note, i) => (
+                                        <motion.article 
+                                            key={note.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                                            className="bento-card group flex flex-col h-[350px]"
+                                        >
+                                            <div className="flex items-center justify-between mb-8">
+                                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+                                                    <FileText className="w-6 h-6" />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setSelectedNote(note)} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all">
+                                                        <Maximize2 className="w-4 h-4 text-muted-foreground" />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(note.id)} className="p-3 bg-white/5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-xl transition-all">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-2xl font-black italic tracking-tighter uppercase mb-4 line-clamp-2 group-hover:text-primary transition-colors">
+                                                    {note.title || 'UNTITLED_LOG'}
+                                                </h3>
+                                                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-5 italic">
+                                                    {note.content}
+                                                </p>
+                                            </div>
+
+                                            <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
+                                                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                                                    <Clock className="w-3 h-3" /> {new Date(note.createdAt).toLocaleDateString()}
+                                                </span>
+                                                <button className="text-[9px] font-black uppercase text-primary tracking-widest hover:underline">
+                                                    Decrypt <ChevronRight className="w-3 h-3 inline ml-1" />
+                                                </button>
+                                            </div>
+                                        </motion.article>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        )}
+                    </div>
+                </main>
             </div>
-          </header>
 
-          <main className="max-w-7xl mx-auto px-6 py-12">
-            {/* Note Creation/Editing UI */}
+            {/* Create Modal */}
             <AnimatePresence>
-              {isCreating && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-background/60 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8"
-                  onClick={resetForm}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 40 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 40 }}
-                    className="w-full max-w-4xl bg-card border-2 border-border shadow-[12px_12px_0px_0px_var(--color-border)] overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="p-8">
-                      <div className="flex justify-between items-start mb-8">
-                        <input
-                          type="text"
-                          placeholder="TITLE_HEADER (OPTIONAL)"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="w-full bg-transparent text-3xl font-black placeholder:text-muted-foreground/20 outline-none text-foreground uppercase italic tracking-tighter"
-                        />
-                        <button onClick={resetForm} className="p-2 border-2 border-transparent hover:border-border transition-all">
-                          <X className="w-6 h-6" />
-                        </button>
-                      </div>
-                      <textarea
-                        placeholder="BEGIN_DATA_STREAMING..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="w-full bg-transparent min-h-[400px] outline-none resize-none text-lg text-foreground placeholder:text-muted-foreground/20 leading-relaxed font-mono"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="px-8 py-6 bg-muted/30 border-t-2 border-border flex justify-between items-center">
-                      <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">ENCRYPTION: AES-256</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">STATUS: BUFFERING</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => editingId ? handleUpdate(editingId) : handleCreate()}
-                          disabled={isSubmitting || !content.trim()}
-                          className="btn-industrial px-8 py-3 flex items-center gap-2 disabled:opacity-50"
-                        >
-                          <Save className="w-5 h-5" />
-                          <span>{isSubmitting ? 'WORKING...' : (editingId ? 'OVERWRITE' : 'COMMIT')}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
+                {isCreating && (
+                    <>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCreating(false)} className="fixed inset-0 bg-black/80 backdrop-blur-2xl z-[100]" />
+                        <motion.div initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 100 }} className="fixed inset-x-6 bottom-12 lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-3xl z-[101]">
+                            <form onSubmit={handleCreate} className="bento-card p-10 lg:p-16 border-primary/20">
+                                <div className="flex items-center justify-between mb-12">
+                                    <h3 className="text-4xl font-black italic tracking-tighter uppercase">New Cipher</h3>
+                                    <button type="button" onClick={() => setIsCreating(false)} className="p-3 hover:bg-white/5 rounded-2xl transition-colors"><X /></button>
+                                </div>
+                                <div className="space-y-8">
+                                    <input 
+                                        type="text" placeholder="LOG_IDENTIFIER..." value={newTitle} 
+                                        onChange={(e) => setNewTitle(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 px-8 py-4 rounded-2xl outline-none focus:border-primary/50 text-xl font-black italic tracking-tighter uppercase" 
+                                    />
+                                    <div className="relative group">
+                                        <textarea 
+                                            placeholder="INPUT_NEURAL_STREAM..." value={newContent} 
+                                            onChange={(e) => setNewContent(e.target.value)}
+                                            className="w-full h-64 bg-white/5 border border-white/10 p-8 rounded-[2rem] outline-none focus:border-primary/50 text-base font-medium italic resize-none leading-relaxed" 
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={toggleRecording}
+                                            className={`absolute bottom-6 right-6 p-4 rounded-2xl transition-all shadow-2xl ${isRecording ? 'bg-accent text-accent-foreground animate-pulse' : 'bg-primary text-primary-foreground hover:scale-110'}`}
+                                        >
+                                            {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                                        </button>
+                                        {isRecording && (
+                                            <div className="absolute top-6 right-6 flex items-center gap-2">
+                                                <div className="w-2 h-2 bg-accent rounded-full animate-ping" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-accent">Recording_Active</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button type="submit" className="w-full btn-premium py-6 text-sm">
+                                        Commit to Archive
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </>
+                )}
             </AnimatePresence>
 
-            {/* Notes Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <AnimatePresence mode="popLayout">
-                {filteredNotes.map((note) => (
-                  <motion.div
-                    layout
-                    key={note.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bento-card group p-8 cursor-pointer relative"
-                    onClick={() => startEditing(note)}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
-                            DOC_{note.id.slice(-6).toUpperCase()}
-                        </span>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                          <Clock className="w-3.5 h-3.5 text-primary" />
-                          <span>{new Date(note.updatedAt).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-
-                    <h3 className={`text-xl font-black uppercase italic tracking-tight mb-4 group-hover:text-primary transition-colors truncate ${!note.title ? 'text-muted-foreground/30' : 'text-foreground'}`}>
-                      {note.title || 'UNTITLED_RECORD'}
-                    </h3>
-                    
-                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-6 font-mono opacity-80 group-hover:opacity-100 transition-opacity whitespace-pre-wrap">
-                      {note.content}
-                    </p>
-
-                    <div className="mt-8 pt-6 border-t border-border flex justify-end opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                      <button
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            handleDelete(note.id)
-                        }}
-                        className="p-2 border-2 border-transparent hover:border-red-500/20 text-muted-foreground hover:text-red-500 transition-all"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-
-            {!loading && filteredNotes.length === 0 && (
-              <div className="text-center py-40 border-2 border-dashed border-border">
-                <div className="w-24 h-24 bg-muted/40 flex items-center justify-center mx-auto mb-8 border-2 border-border rotate-12">
-                  <FileText className="w-10 h-10 text-muted-foreground/40" />
-                </div>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-foreground mb-4">
-                  {searchQuery ? 'ZERO_MATCHES' : 'CLEAN_SLATE'}
-                </h3>
-                <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.3em] max-w-xs mx-auto">
-                  {searchQuery ? 'SEARCH_QUERY_UNRESOLVED' : 'AWAITING_INPUT_STREAM'}
-                </p>
-                {!searchQuery && (
-                  <button 
-                    onClick={() => setIsCreating(true)}
-                    className="btn-industrial px-8 py-3 mt-8"
-                  >
-                    INITIALIZE_NEW_DOC
-                  </button>
-                )}
-              </div>
-            )}
-          </main>
+            <BottomNav onAddClick={() => setIsCreating(true)} />
         </div>
-      </div>
-
-      <BottomNav onAddClick={() => setIsCreating(true)} />
-    </div>
-  )
+    )
 }

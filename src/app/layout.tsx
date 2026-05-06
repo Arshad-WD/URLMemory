@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import GSAPVisuals from "@/components/GSAPVisuals";
+import NeuralChat from "@/components/NeuralChat";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Providers>
           <GSAPVisuals />
           {children}
+          <NeuralChat />
         </Providers>
       </body>
     </html>
