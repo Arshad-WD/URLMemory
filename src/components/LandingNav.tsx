@@ -47,7 +47,7 @@ export default function LandingNav() {
             <Link href="/auth/login" className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary transition-colors">
               Uplink
             </Link>
-            <Link href="/auth/register" className="btn-premium py-3 px-6 text-[9px]">
+            <Link href="/auth/signup" className="btn-premium py-3 px-6 text-[9px]">
               Initialize Core <Zap className="w-3 h-3" />
             </Link>
           </div>
@@ -86,7 +86,7 @@ export default function LandingNav() {
               <div className="h-px bg-white/5 my-2" />
               <div className="flex flex-col gap-4">
                 <Link href="/auth/login" className="text-center py-4 text-sm font-black uppercase tracking-widest text-muted-foreground">Uplink</Link>
-                <Link href="/auth/register" className="btn-premium w-full">Initialize Core</Link>
+                <Link href="/auth/signup" className="btn-premium w-full">Initialize Core</Link>
               </div>
             </div>
           </motion.div>

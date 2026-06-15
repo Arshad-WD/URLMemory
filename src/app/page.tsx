@@ -38,7 +38,7 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6">
-                <Link href="/auth/register">
+                <Link href="/auth/signup">
                   <button className="btn-premium px-10 py-5 text-sm w-full sm:w-auto">
                     Initiate Sequence <ArrowRight className="w-5 h-5" />
                   </button>

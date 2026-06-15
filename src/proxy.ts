@@ -5,9 +5,9 @@ import authConfig from "./auth.base"
 const { auth } = NextAuth(authConfig)
 
 // Pages that authenticated users should be redirected away from
-const publicOnlyPaths = ["/", "/auth/login", "/auth/signup", "/auth/register"]
+const publicOnlyPaths = ["/", "/auth/login", "/auth/signup"]
 
-export default auth((req) => {
+export const proxy = auth((req) => {
     const { pathname } = req.nextUrl
     const isLoggedIn = !!req.auth
 
@@ -32,4 +32,3 @@ export const config = {
         "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
     ],
 }
-
